@@ -12,6 +12,7 @@
         UseLayoutRounding="True"
         SnapsToDevicePixels="True"
         WindowStartupLocation="CenterOwner"
+        Topmost="True"
         MinWidth="250"
         MaxWidth="500"
         MaxHeight="500"

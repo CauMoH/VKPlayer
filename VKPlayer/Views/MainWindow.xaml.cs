@@ -97,6 +97,8 @@ namespace VKPlayer.Views
 
             SizeChanged += MainWindow_OnSizeChanged;
             LocationChanged += MainWindow_OnLocationChanged;
+
+            ViewModel.AuthorizeFromAccessToken();
         }
 
         private void MainWindow_OnClosing(object sender, CancelEventArgs e)

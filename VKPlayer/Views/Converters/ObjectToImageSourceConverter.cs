@@ -9,15 +9,26 @@ namespace VKPlayer.Views.Converters
 
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
+            if (value == null)
+            {
+                return new object();
+            }
             var packUri = value.ToString();
-            var source = new ImageSourceConverter().ConvertFromString(packUri) as ImageSource;
-            return source;
+            var imageObject = new ImageSourceConverter().ConvertFromString(packUri);
+            if (imageObject != null)
+            {
+                return (ImageSource) imageObject;
+            }
+            else
+            {
+                return new object();
+            }
         }
 
         public object ConvertBack(object value, Type targetType, object parameter,
             System.Globalization.CultureInfo culture)
         {
-            throw new NotImplementedException();
+            return new object();
         }
     }
 }

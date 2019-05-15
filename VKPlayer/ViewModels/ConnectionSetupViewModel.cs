@@ -17,7 +17,6 @@ namespace VKPlayer.ViewModels
 
         private string _username;
         private SecureString _password;
-        private string _accessToken;
 
         private bool _isOpen;
 
@@ -39,12 +38,6 @@ namespace VKPlayer.ViewModels
         {
             get => _password;
             set => SetProperty(ref _password, value);
-        }
-
-        public string AccessToken
-        {
-            get => _accessToken;
-            set => SetProperty(ref _accessToken, value);
         }
 
         /// <summary>
@@ -78,7 +71,7 @@ namespace VKPlayer.ViewModels
                 Owner = Application.Current.MainWindow
             };
 
-            _setupView.ShowDialog();
+            _setupView.Show();
         }
 
         /// <summary>
@@ -88,7 +81,6 @@ namespace VKPlayer.ViewModels
         {
             UserName = _userSettings.UserName;
             Password = _userSettings.Password;
-            AccessToken = _userSettings.AccessToken;
         }
 
         #region Commands
@@ -114,15 +106,13 @@ namespace VKPlayer.ViewModels
 
         private void OkExecute()
         {
-            _setupView.MoveFocus(new TraversalRequest(FocusNavigationDirection.Last));
+            IsOpen = false;
 
             _userSettings.UserName = UserName;
             _userSettings.Password = PbExt.Password;
-            _userSettings.AccessToken = AccessToken;
+            _userSettings.AccessToken = string.Empty;
 
             _userSettings.Save(isSilent: false);
-
-            IsOpen = false;
         }
 
         private void CancelExecute()

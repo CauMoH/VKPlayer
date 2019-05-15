@@ -3,10 +3,13 @@
   <Profiles />
   <Settings>
     <Setting Name="WindowMinHeight" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">500</Value>
+      <Value Profile="(Default)">600</Value>
     </Setting>
     <Setting Name="WindowMinWidth" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">400</Value>
+      <Value Profile="(Default)">500</Value>
+    </Setting>
+    <Setting Name="Count" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">100</Value>
     </Setting>
   </Settings>
 </SettingsFile>

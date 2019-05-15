@@ -1,11 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
-using System.Threading.Tasks;
 using VKPlayer.Enums;
 using VKPlayer.Interfaces;
+using VKPlayer.Logging;
 using Vlc.DotNet.Core;
-using Vlc.DotNet.Core.Interops;
 
 namespace VKPlayer.PlayerEngine
 {
@@ -28,13 +27,29 @@ namespace VKPlayer.PlayerEngine
         public PlayerVlcService()
         {
             var currentAssembly = Assembly.GetEntryAssembly();
-            var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
-            if (currentDirectory == null)
-                return;
 
-            var vlcLibDirectory = IntPtr.Size == 4 ? new DirectoryInfo(Path.Combine(currentDirectory, @"lib\x86")) : new DirectoryInfo(Path.Combine(currentDirectory, @"lib\x64"));
+            try
+            {
+                if (currentAssembly != null)
+                {
+                    var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
+                    if (currentDirectory == null)
+                        return;
 
-            _vlcMediaPlayer = new VlcMediaPlayer(vlcLibDirectory);
+                    var vlcLibDirectory = new DirectoryInfo(Path.Combine(currentDirectory, @"lib\x86"));
+
+                    _vlcMediaPlayer = new VlcMediaPlayer(vlcLibDirectory);
+                }
+                else
+                {
+                    throw new FileNotFoundException(Localization.strings.PlayerEngineNotFound);
+                }
+            }
+            catch (Exception e)
+            {
+                LoggerFacade.WriteError(Localization.strings.PlayerNotLoaded, e, isShow: true);
+            }
+
             _vlcMediaPlayer.PositionChanged += VlcMediaPlayer_OnPositionChanged;
             _vlcMediaPlayer.LengthChanged += VlcMediaPlayer_OnLengthChanged;
             _vlcMediaPlayer.Stopped += VlcMediaPlayer_OnStopped;
@@ -93,32 +108,57 @@ namespace VKPlayer.PlayerEngine
 
         public void Play(Uri playPathUri)
         {
-            Task.Run(() =>
+            try
             {
                 _vlcMediaPlayer.Play(playPathUri.AbsoluteUri);
-            });
+            }
+            catch (Exception e)
+            {
+                LoggerFacade.WriteError(e);
+            }
         }
 
         public void Stop()
         {
-            _vlcMediaPlayer.Stop();
+            try
+            {
+                _vlcMediaPlayer.Stop();
+            }
+            catch (Exception e)
+            {
+                LoggerFacade.WriteError(e);
+            }
         }
 
         public void Pause(bool doPause)
         {
-            if (doPause)
+            try
             {
-                _vlcMediaPlayer.Pause();
+                if (doPause)
+                {
+                    _vlcMediaPlayer.Pause();
+                }
+                else
+                {
+                    _vlcMediaPlayer.Play();
+                }
             }
-            else
+            catch (Exception e)
             {
-                _vlcMediaPlayer.Play();
+                LoggerFacade.WriteError(e);
             }
         }
 
         public void SetPosition(float position)
         {
-            _vlcMediaPlayer.Position = position;
+            try
+            {
+                _vlcMediaPlayer.Position = position;
+            }
+            catch (Exception e)
+            {
+                LoggerFacade.WriteError(e);
+            }
         }
 
         #region Events

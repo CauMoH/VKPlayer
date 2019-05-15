@@ -174,4 +174,37 @@
   <data name="GetPopular" xml:space="preserve">
     <value>Популярное</value>
   </data>
+  <data name="PlayerNotLoaded" xml:space="preserve">
+    <value>Ошибка при загрузке player engine!</value>
+  </data>
+  <data name="PlayerEngineNotFound" xml:space="preserve">
+    <value>Не найден player engine</value>
+  </data>
+  <data name="TwoFactorAuthorizationViewHeader" xml:space="preserve">
+    <value>Ввод кода двухфакторной авторизации</value>
+  </data>
+  <data name="TwoFactCode" xml:space="preserve">
+    <value>Код</value>
+  </data>
+  <data name="TwoFactEnterCode" xml:space="preserve">
+    <value>Введите код</value>
+  </data>
+  <data name="TwoFactHelp" xml:space="preserve">
+    <value>Если у вас включена двухфакторная авторизация, введите код и нажмите "ОК", если нет, проигнорируйте это окно.</value>
+  </data>
+  <data name="Enter" xml:space="preserve">
+    <value>Войти</value>
+  </data>
+  <data name="AuthorizeError" xml:space="preserve">
+    <value>Ошибка авторизации</value>
+  </data>
+  <data name="CaptchaHeader" xml:space="preserve">
+    <value>Ввод Captcha</value>
+  </data>
+  <data name="GetMyMusic" xml:space="preserve">
+    <value>Мои</value>
+  </data>
+  <data name="NextContent" xml:space="preserve">
+    <value>Следующие</value>
+  </data>
 </root>

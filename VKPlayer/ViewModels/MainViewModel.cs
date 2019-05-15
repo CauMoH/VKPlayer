@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Logging;
@@ -11,6 +9,7 @@ using Prism.Commands;
 using Prism.Mvvm;
 using VkNet;
 using VkNet.AudioBypassService.Extensions;
+using VkNet.Exception;
 using VkNet.Model;
 using VkNet.Model.RequestParams;
 using VKPlayer.AppCommon;
@@ -44,6 +43,8 @@ namespace VKPlayer.ViewModels
         private double _totalProgress = 100;
 
         private double _processingProgress;
+
+        private long _offset;
 
         #endregion
 
@@ -82,6 +83,16 @@ namespace VKPlayer.ViewModels
         /// Вью модель настроек
         /// </summary>
         public ConnectionSetupViewModel ConnectionSetupViewModel { get; set; }
+
+        /// <summary>
+        /// Вью модель ввода кода двухфакторной авторизации
+        /// </summary>
+        public TwoFactorAuthorizationViewModel TwoFactorAuthorizationViewModel { get; set; }
+
+        /// <summary>
+        /// Вью модель ввода каптчи
+        /// </summary>
+        public CaptchaViewModel CaptchaViewModel { get; set; }
 
         /// <summary>
         /// Текущий плейлист
@@ -148,8 +159,6 @@ namespace VKPlayer.ViewModels
             InitViewModels();
 
             InitCommands();
-
-            Authorize();
         }
 
         #region Initialize
@@ -181,80 +190,147 @@ namespace VKPlayer.ViewModels
         private void InitViewModels()
         {
             ConnectionSetupViewModel = new ConnectionSetupViewModel(UserSettings);
+            TwoFactorAuthorizationViewModel = new TwoFactorAuthorizationViewModel();
+            CaptchaViewModel = new CaptchaViewModel();
+            CaptchaViewModel.CaptchaEntered += CaptchaViewModel_OnCaptchaEntered;
         }
-
-        #endregion
         
-        private void Authorize()
+        #endregion
+
+        #region Authorize
+
+        /// <summary>
+        /// Авторизация по токену
+        /// </summary>
+        public void AuthorizeFromAccessToken(long? captchaSid = null, string captchaKey = null)
         {
+            if (string.IsNullOrWhiteSpace(UserSettings.AccessToken))
+                return;
+
             try
             {
-                if (!string.IsNullOrWhiteSpace(UserSettings.AccessToken))
+                _api.Authorize(new ApiAuthParams
                 {
-                    _api.Authorize(new ApiAuthParams
-                    {
-                        ApplicationId = AppInfo.VkAppId,
-                        AccessToken = UserSettings.AccessToken
-                    });
-                }
-                else
-                {
-                    _api.Authorize(new ApiAuthParams
-                    {
-                        ApplicationId = AppInfo.VkAppId,
-                        Login = UserSettings.UserName,
-                        Password = new System.Net.NetworkCredential(string.Empty, UserSettings.Password).Password
-                    });
-                }
-                
-                if (_api.IsAuthorized)
-                {
-                    UserSettings.AccessToken = _api.Token;
-                    UserSettings.Save();
-
-                    //TODO
-                    GetMyTracks(100);
-                }
+                    ApplicationId = AppInfo.VkAppId,
+                    AccessToken = UserSettings.AccessToken,
+                    CaptchaSid = captchaSid,
+                    CaptchaKey = captchaKey
+                });
+            }
+            catch (CaptchaNeededException e)
+            {
+                CaptchaViewModel.Open(e.Sid, e.Img);
+                return;
             }
             catch (Exception e)
             {
-
+                LoggerFacade.WriteError(Localization.strings.AuthorizeError, e, isShow: true);
+                ConnectionSettingsCommand.Execute(null);
             }
 
             RaisePropertyChanged(nameof(AuthorizationStatus));
         }
 
-        private void GetMyTracks(int count)
+        /// <summary>
+        /// Авторизация по логину и паролю
+        /// </summary>
+        public void AuthorizeFromLogPass(long? captchaSid = null, string captchaKey = null)
         {
-            Tracks.Clear();
+            if (string.IsNullOrWhiteSpace(UserSettings.UserName) || UserSettings.Password.Length == 0)
+                return;
 
-            var audios = _api.Audio.Get(new AudioGetParams()
-            {
-                Count = count
-            });
+            TwoFactorAuthorizationViewModel.Open();
 
-            foreach (var audio in audios)
-            {
-                Tracks.Add(audio);
-            }
+            Task.Run(() =>
+                {
+                    try
+                    {
+                        _api.Authorize(new ApiAuthParams
+                        {
+                            ApplicationId = AppInfo.VkAppId,
+                            Login = UserSettings.UserName,
+                            Password = new System.Net.NetworkCredential(string.Empty, UserSettings.Password).Password,
+                            TwoFactorAuthorization = () =>
+                            {
+                                var code = TwoFactorAuthorizationViewModel.GetCode();
+                                return code;
+                            },
+                            CaptchaSid = captchaSid,
+                            CaptchaKey = captchaKey
+                        });
 
-            PlayFirst();
+
+                        TwoFactorAuthorizationViewModel.IsOpen = false;
+
+                        if (_api.IsAuthorized)
+                        {
+                            UserSettings.AccessToken = _api.Token;
+                            UserSettings.Save();
+                        }
+                    }
+                    catch (CaptchaNeededException e)
+                    {
+                        UiInvoker.Invoke(() =>
+                        {
+                            TwoFactorAuthorizationViewModel.IsOpen = false;
+                            CaptchaViewModel.Open(e.Sid, e.Img);
+                        });
+                    }
+                    catch (VkApiAuthorizationException e)
+                    {
+                        LoggerFacade.WriteError(Localization.strings.AuthorizeError + Environment.NewLine + e.Message, isShow: true);
+
+                        UiInvoker.Invoke(() =>
+                        {
+                            TwoFactorAuthorizationViewModel.IsOpen = false;
+                            ConnectionSettingsCommand.Execute(null);
+                        });
+                    }
+                    finally
+                    {
+                        UiInvoker.Invoke(() =>
+                        {
+                            RaisePropertyChanged(nameof(AuthorizationStatus));
+                        });
+                    }
+                });
         }
 
+        #endregion
+
+        /// <summary>
+        /// Играть первый трек в списке
+        /// </summary>
         private void PlayFirst()
         {
             SelectedTrack = Tracks.FirstOrDefault();
             Play();
         }
 
+        /// <summary>
+        /// Играть выбранный трек
+        /// </summary>
         private void Play()
         {
             _player.Play(SelectedTrack?.Url);
         }
         
+        /// <summary>
+        /// Установить позицию в треке
+        /// </summary>
+        /// <param name="positionInMs"></param>
         public void SetPosition(float positionInMs)
         {
             _player.SetPosition((float)(positionInMs / TotalProgress));
+        }
+
+        /// <summary>
+        /// Очистить список треков
+        /// </summary>
+        private void ClearTracks()
+        {
+            Tracks.Clear();
+            _offset = 0;
         }
 
         #region Others
@@ -277,9 +353,9 @@ namespace VKPlayer.ViewModels
 
         private void Settings_OnSaved(object sender, SettingsSavedEventArgs e)
         {
-            if (e.IsChanged(nameof(UserSettings.UserName)) || e.IsChanged(nameof(UserSettings.Password)))
+            if (e.IsChanged(nameof(UserSettings.UserName)) || e.IsChanged(nameof(UserSettings.Password)) || string.IsNullOrWhiteSpace(UserSettings.AccessToken))
             {
-                Authorize();
+                AuthorizeFromLogPass();
             }
         }
 
@@ -329,6 +405,15 @@ namespace VKPlayer.ViewModels
 
         #endregion
 
+        #region Captcha
+
+        private void CaptchaViewModel_OnCaptchaEntered(object sender, CaptchaEnteredEventArgs e)
+        {
+            AuthorizeFromLogPass(e.CaptchaSid, e.CaptchaKey);
+        }
+
+        #endregion
+
         #endregion
 
         #region Commands
@@ -337,13 +422,15 @@ namespace VKPlayer.ViewModels
         {
             ConnectionSettingsCommand = new DelegateCommand(ConnectionSettingsExecute);
             SearchCommand = new DelegateCommand(SearchExecute);
-            GetFeedCommand = new DelegateCommand(GetFeedExecute);
+            GetPopularCommand = new DelegateCommand(GetPopularExecute);
             SelectedCommand = new DelegateCommand<Audio>(SelectedExecute);
             PreviousTrackCommand = new DelegateCommand(PreviousTrackExecute);
             NextTrackCommand = new DelegateCommand(NextTrackExecute);
             PlayPauseCommand = new DelegateCommand(PlayPauseExecute);
             StopCommand = new DelegateCommand(StopExecute);
             DownloadCommand = new DelegateCommand(DownloadExecute);
+            GetMyMusicCommand = new DelegateCommand(GetMyMusicExecute);
+            NextContentCommand = new DelegateCommand(NextContentExecute);
         }
 
         #region Command Props
@@ -351,8 +438,6 @@ namespace VKPlayer.ViewModels
         public ICommand ConnectionSettingsCommand { get; private set; }
 
         public ICommand SearchCommand { get; private set; }
-
-        public ICommand GetFeedCommand { get; private set; }
 
         public ICommand SelectedCommand { get; private set; }
 
@@ -366,6 +451,12 @@ namespace VKPlayer.ViewModels
 
         public ICommand DownloadCommand { get; private set; }
 
+        public ICommand GetPopularCommand { get; private set; }
+
+        public ICommand GetMyMusicCommand { get; private set; }
+
+        public ICommand NextContentCommand { get; private set; }
+
         #endregion
 
         private void ConnectionSettingsExecute()
@@ -378,9 +469,29 @@ namespace VKPlayer.ViewModels
             //_apiEngine.SearchTracks(Query, UserSettings.SearchType, UserSettings.SearchPageCount, UserSettings.SearchNococrrect);
         }
 
-        private void GetFeedExecute()
+        private void GetPopularExecute()
         {
             //_apiEngine.GetFeed();
+        }
+
+        private void GetMyMusicExecute()
+        {
+            ClearTracks();
+
+            var audios = _api.Audio.Get(new AudioGetParams()
+            {
+                Count = Settings.Default.Count
+            });
+
+            foreach (var audio in audios)
+            {
+                Tracks.Add(audio);
+            }
+        }
+
+        private void NextContentExecute()
+        {
+            //_api.Audio.GetPopular()
         }
 
         private void SelectedExecute(Audio track)
