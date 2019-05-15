@@ -1,0 +1,677 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:extension="clr-namespace:VKPlayer.Extension"
+                    xmlns:localization="clr-namespace:VKPlayer.Localization"
+                    xmlns:enum="clr-namespace:VKPlayer.Enums"
+                    xmlns:converters="clr-namespace:VKPlayer.Views.Converters"
+                    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity">
+
+    <!-- Set default font                    -->
+    <Style TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="Roboto"/>
+        <Setter Property="FontSize" Value="14"/>
+    </Style>
+    <Style TargetType="{x:Type Window}">
+        <Setter Property="FontFamily" Value="Roboto"/>
+        <Setter Property="FontSize" Value="14"/>
+    </Style>
+    <!-- Neccessary for Blend designer for usercontrols -->
+    <Style TargetType="{x:Type UserControl}">
+        <Setter Property="TextElement.FontFamily" Value="Roboto"/>
+        <Setter Property="FontSize" Value="14"/>
+    </Style>
+
+    <converters:EqualityConverter x:Key="EqualityConverter"/>
+    <converters:ObjectToImageSourceConverter x:Key="ObjectToImageSourceConverter"/>
+    <converters:ProgressBarConverter x:Key="ProgressBarConverter"/>
+
+    <SolidColorBrush x:Key="WindowHeaderColor">#193443</SolidColorBrush>
+    <SolidColorBrush x:Key="WindowBorderColor">#A0A0A0</SolidColorBrush>
+    <SolidColorBrush x:Key="HeaderMinimizeButtonHoverColor">#2A739C</SolidColorBrush>
+    <SolidColorBrush x:Key="HeaderMinimizeButtonPressColor">#205979</SolidColorBrush>
+    <SolidColorBrush x:Key="HeaderCloseButtonHoverColor">#D80027</SolidColorBrush>
+    <SolidColorBrush x:Key="HeaderCloseButtonPressColor">#B10020</SolidColorBrush>
+    <SolidColorBrush x:Key="ButtonHoverColor">#337FAA</SolidColorBrush>
+    <SolidColorBrush x:Key="ButtonNormalColor">#276A8F</SolidColorBrush>
+    <SolidColorBrush x:Key="ButtonPressedColor">#193443</SolidColorBrush>
+    <SolidColorBrush x:Key="ButtonDisabledColor">#F8F8F8</SolidColorBrush>
+    <SolidColorBrush x:Key="ButtonDisabledBorderColor">#D1D4D9</SolidColorBrush>
+    <SolidColorBrush x:Key="MainGrayColor">#A3A7AD</SolidColorBrush>
+    <SolidColorBrush x:Key="MainBlackColor">#041621</SolidColorBrush>
+    <SolidColorBrush x:Key="TextBoxActiveBorderColor">#7EB2FF</SolidColorBrush>
+    <SolidColorBrush x:Key="SubstrateColor">#F8F8F8</SolidColorBrush>
+    <SolidColorBrush x:Key="ConnectionStatusTextColor">#6A6D74</SolidColorBrush>
+    <SolidColorBrush x:Key="ProgressBarIndicatorColor">#11AC17</SolidColorBrush>
+    <SolidColorBrush x:Key="ProgressBarBackgroundColor">#F7F7F7</SolidColorBrush>
+    <SolidColorBrush x:Key="GroupBoxTitleColor">#6A6D74</SolidColorBrush>
+
+    <Style x:Key="ButtonTransparentStyle" TargetType="{x:Type Button}">
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="Transparent">
+                        <ContentPresenter/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="MainButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="Background" Value="{StaticResource ButtonNormalColor}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource ButtonNormalColor}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="FontSize" Value="14px"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="border" 
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="1"
+                            Background="{TemplateBinding Background}" 
+                            SnapsToDevicePixels="true"
+                            CornerRadius="4">
+                        <ContentPresenter x:Name="contentPresenter"
+                                          Focusable="False"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                          Margin="{TemplateBinding Padding}"
+                                          RecognizesAccessKey="True"
+                                          SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                          VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" TargetName="border" Value="{StaticResource ButtonHoverColor}"/>
+                            <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource ButtonHoverColor}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="true">
+                            <Setter Property="Background" TargetName="border" Value="{StaticResource ButtonPressedColor}"/>
+                            <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource ButtonPressedColor}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Background" TargetName="border" Value="{StaticResource ButtonDisabledColor}"/>
+                            <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource ButtonDisabledBorderColor}"/>
+                            <Setter Property="Foreground" Value="{StaticResource MainGrayColor}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="TextBoxExtStyle" TargetType="{x:Type extension:TextBoxExt}">
+        <Setter Property="UseLayoutRounding" Value="True"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="extension:TextBoxExt">
+                    <Border BorderThickness="1"
+                            x:Name="Border"
+                            BorderBrush="{StaticResource MainGrayColor}"
+                            CornerRadius="2">
+                        <Grid>
+                            <TextBox Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Text, Mode=TwoWay}"
+                                     Name="SearchBox"
+                                 FontSize="14px"
+                                 FontWeight="Regular"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 TextWrapping="Wrap"
+                                 BorderBrush="Transparent"
+                                 Margin="9,0,5,0"
+                                 MaxLength="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MaxLength}"
+                                 HorizontalAlignment="Stretch"
+                                 VerticalAlignment="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=VerticalContentAlignment}"
+                                 Foreground="{StaticResource MainBlackColor}"/>
+                            <TextBlock HorizontalAlignment="Stretch"
+                                       VerticalAlignment="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=VerticalContentAlignment}"
+                                       FontSize="14px"
+                                       FontWeight="Regular"
+                                       Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=DefaultText}"
+                                       Margin="11,3,5,0"
+                                       Foreground="{StaticResource MainGrayColor}"
+                                       IsHitTestVisible="False"
+                                       x:Name="UserMessage"
+                                       Visibility="Hidden"/>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <DataTrigger Binding="{Binding ElementName=SearchBox, Path=Text}" Value="">
+                            <Setter Property="Visibility" TargetName="UserMessage" Value="Visible"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding ElementName=SearchBox, Path=IsKeyboardFocused}" Value="True">
+                            <Setter Property="BorderBrush" TargetName="Border" Value="{StaticResource TextBoxActiveBorderColor}"/>
+                        </DataTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="ButtonSettingsStyle" BasedOn="{StaticResource ButtonTransparentStyle}" TargetType="Button">
+        <Setter Property="Width" Value="21"/>
+        <Setter Property="Height" Value="21"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Image x:Name="Image"
+                           SnapsToDevicePixels="true"
+                           Source="pack://application:,,,/Views/Images/btn_settings_normal.png"/>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Source" TargetName="Image" Value="pack://application:,,,/Views/Images/btn_settings_hover.png"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="true">
+                            <Setter Property="Source" TargetName="Image" Value="pack://application:,,,/Views/Images/btn_settings_press.png"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="MainButtonStyleWithStartImage" TargetType="{x:Type Button}">
+        <Setter Property="Background" Value="{StaticResource ButtonNormalColor}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource ButtonNormalColor}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="FontSize" Value="14px"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="border" 
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="1"
+                            Background="{TemplateBinding Background}" 
+                            SnapsToDevicePixels="true"
+                            CornerRadius="4">
+
+                        <StackPanel Orientation="Horizontal"
+                                    Focusable="False"
+                                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                    Margin="{TemplateBinding Padding}"
+                                    SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                            <Image Width="12" Height="14" Source="pack://application:,,,/Views/Images/btn_play.png" Margin="0,0,9,0"/>
+                            <TextBlock Text="{TemplateBinding Content}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" TargetName="border" Value="{StaticResource ButtonHoverColor}"/>
+                            <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource ButtonHoverColor}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="true">
+                            <Setter Property="Background" TargetName="border" Value="{StaticResource ButtonPressedColor}"/>
+                            <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource ButtonPressedColor}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Background" TargetName="border" Value="{StaticResource ButtonDisabledColor}"/>
+                            <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource ButtonDisabledBorderColor}"/>
+                            <Setter Property="Foreground" Value="{StaticResource MainGrayColor}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="AuthImageIndicator" TargetType="{x:Type Image}">
+        <Setter Property="Height" Value="18"/>
+        <Setter Property="Width" Value="18"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding}" Value="false">
+                <Setter Property="Source" Value="pack://application:,,,/Views/Images/status_error.png"/>
+            </DataTrigger>
+
+            <DataTrigger Binding="{Binding}" Value="true">
+                <Setter Property="Source" Value="pack://application:,,,/Views/Images/status_ok.png"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="PlayPauseImageIndicator" TargetType="{x:Type Image}">
+        <Setter Property="Height" Value="18"/>
+        <Setter Property="Width" Value="18"/>
+        <Setter Property="Source" Value="pack://application:,,,/Views/Images/play.png"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding PlayerState}" Value="{x:Static enum:PlayerState.Plays}">
+                <Setter Property="Source" Value="pack://application:,,,/Views/Images/pause.png"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="PlayerButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="Background" Value="{StaticResource ButtonNormalColor}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource ButtonNormalColor}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="FontSize" Value="14px"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="border" 
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="1"
+                            Background="{TemplateBinding Background}" 
+                            SnapsToDevicePixels="true"
+                            CornerRadius="4">
+
+                        <Grid Focusable="False"
+                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                              Margin="{TemplateBinding Padding}"
+                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                            <Image Width="24" Height="24" Source="{TemplateBinding Content, Converter={StaticResource ObjectToImageSourceConverter}}"/>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" TargetName="border" Value="{StaticResource ButtonHoverColor}"/>
+                            <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource ButtonHoverColor}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="true">
+                            <Setter Property="Background" TargetName="border" Value="{StaticResource ButtonPressedColor}"/>
+                            <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource ButtonPressedColor}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Background" TargetName="border" Value="{StaticResource ButtonDisabledColor}"/>
+                            <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource ButtonDisabledBorderColor}"/>
+                            <Setter Property="Foreground" Value="{StaticResource MainGrayColor}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="PlayerPlayPauseButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="Background" Value="{StaticResource ButtonNormalColor}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource ButtonNormalColor}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="FontSize" Value="14px"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="border" 
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="1"
+                            Background="{TemplateBinding Background}" 
+                            SnapsToDevicePixels="true"
+                            CornerRadius="4">
+
+                        <Grid Focusable="False"
+                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                              Margin="{TemplateBinding Padding}"
+                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                            <Image Width="24" Height="24" Style="{StaticResource PlayPauseImageIndicator}"/>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" TargetName="border" Value="{StaticResource ButtonHoverColor}"/>
+                            <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource ButtonHoverColor}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="true">
+                            <Setter Property="Background" TargetName="border" Value="{StaticResource ButtonPressedColor}"/>
+                            <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource ButtonPressedColor}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Background" TargetName="border" Value="{StaticResource ButtonDisabledColor}"/>
+                            <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource ButtonDisabledBorderColor}"/>
+                            <Setter Property="Foreground" Value="{StaticResource MainGrayColor}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="AuthTextIndicator" TargetType="{x:Type TextBlock}">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding}" Value="true">
+                <Setter Property="Text" Value="{x:Static localization:strings.AuthSuccess}"/>
+            </DataTrigger>
+
+            <DataTrigger Binding="{Binding}" Value="false">
+                <Setter Property="Text" Value="{x:Static localization:strings.AuthError}"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="AuthStatusStyle" TargetType="{x:Type Control}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Control">
+                    <Grid VerticalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Image Grid.Column="0"
+                               Margin="5,0,13,0"
+                               VerticalAlignment="Center"
+                               DataContext="{Binding}"
+                               Style="{StaticResource AuthImageIndicator}"/>
+
+                        <TextBlock Grid.Column="1"
+                                   DataContext="{Binding}"
+                                   Style="{StaticResource AuthTextIndicator}"
+                                   VerticalAlignment="Center"
+                                   FontSize="12px"
+                                   FontWeight="Medium"
+                                   Foreground="{StaticResource ConnectionStatusTextColor}"/>
+
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="ProgressBarStyle" TargetType="{x:Type ProgressBar}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ProgressBar}">
+                    <Grid MinWidth="50" x:Name="Grid" Background="{TemplateBinding Background}">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Determinate" />
+                                <VisualState x:Name="Indeterminate">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Duration="00:00:00"
+                                                                           Storyboard.TargetName="PART_Indicator"
+                                                                           Storyboard.TargetProperty="Background">
+                                            <DiscreteObjectKeyFrame KeyTime="00:00:00">
+                                                <DiscreteObjectKeyFrame.Value>
+                                                    <SolidColorBrush>Transparent</SolidColorBrush>
+                                                </DiscreteObjectKeyFrame.Value>
+                                            </DiscreteObjectKeyFrame>
+                                        </ObjectAnimationUsingKeyFrames>
+
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <Border x:Name="PART_Track" CornerRadius="3" BorderThickness="1"
+                                    BorderBrush="{StaticResource ButtonDisabledBorderColor}" Background="{StaticResource ProgressBarBackgroundColor}">
+                        </Border>
+
+                        <Border BorderThickness="1" x:Name="PART_Indicator"
+                                    HorizontalAlignment="Left" Background="{StaticResource WindowHeaderColor}"
+                                    BorderBrush="{StaticResource WindowHeaderColor}"
+                                    Margin="0,0,0,0">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="3,0,0,3"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Value="true">
+                                            <DataTrigger.Binding>
+                                                <MultiBinding Converter="{StaticResource ProgressBarConverter}">
+                                                    <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type ProgressBar}}" Path="Value"/>
+                                                    <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type ProgressBar}}" Path="Maximum" />
+                                                </MultiBinding>
+                                            </DataTrigger.Binding>
+                                            <Setter Property="CornerRadius" Value="3"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="Transparent" />
+    </Style>
+
+    <ControlTemplate x:Key="ComboBoxToggleButton" TargetType="{x:Type ToggleButton}">
+        <Border CornerRadius="2"
+                BorderBrush="{StaticResource MainGrayColor}"
+                BorderThickness="1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Border
+                    x:Name="Border"
+                    Background="White" />
+
+                <Border Grid.Column="1" Panel.ZIndex="999" Background="White">
+                    <Image Width="10"
+                           Height="7"
+                           Margin="20,0,11,0"
+                           VerticalAlignment="Center"
+                           Source="pack://application:,,,/Views/Images/ico_arrow_down.png"/>
+                </Border>
+
+            </Grid>
+        </Border>
+    </ControlTemplate>
+
+    <Style x:Key="ComboMoxStyle" TargetType="{x:Type ComboBox}">
+        <Setter Property="SnapsToDevicePixels" Value="true"/>
+        <Setter Property="OverridesDefaultStyle" Value="true"/>
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+        <Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
+        <Setter Property="MinWidth" Value="150"/>
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="Foreground" Value="{StaticResource WindowHeaderColor}"/>
+        <Setter Property="FontSize" Value="15px"/>
+        <Setter Property="FontWeight" Value="Regular"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ComboBox}">
+                    <Grid>
+                        <ToggleButton 
+                            Name="ToggleButton" 
+                            Template="{StaticResource ComboBoxToggleButton}" 
+                            Focusable="false"
+                            IsChecked="{Binding Path=IsDropDownOpen,Mode=TwoWay,RelativeSource={RelativeSource TemplatedParent}}"
+                            ClickMode="Press">
+                        </ToggleButton>
+                        <ContentPresenter Name="ContentSite" IsHitTestVisible="False"  Content="{TemplateBinding SelectionBoxItem}"
+                            ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                            ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                            Margin="14,0,23,0"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Left" />
+                        <Popup 
+                            Name="Popup"
+                            Placement="Bottom"
+                            IsOpen="{TemplateBinding IsDropDownOpen}"
+                            AllowsTransparency="True" 
+                            Focusable="False"
+                            PopupAnimation="Slide">
+
+                            <Grid Name="DropDown"
+                              SnapsToDevicePixels="True"                
+                              MinWidth="{TemplateBinding ActualWidth}"
+                              MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                <Border x:Name="DropDownBorder"
+                                        BorderThickness="1"
+                                        CornerRadius="2"
+                                        BorderBrush="{StaticResource MainGrayColor}"
+                                        Background="White"/>
+                                <ScrollViewer Margin="4,6,4,6" SnapsToDevicePixels="True">
+                                    <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained" />
+                                </ScrollViewer>
+                            </Grid>
+                        </Popup>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="HasItems" Value="false">
+                            <Setter TargetName="DropDownBorder" Property="MinHeight" Value="95"/>
+                        </Trigger>
+                        <Trigger Property="IsGrouping" Value="true">
+                            <Setter Property="ScrollViewer.CanContentScroll" Value="false"/>
+                        </Trigger>
+                        <Trigger SourceName="Popup" Property="Popup.AllowsTransparency" Value="true">
+                            <Setter TargetName="DropDownBorder" Property="CornerRadius" Value="0"/>
+                            <Setter TargetName="DropDownBorder" Property="Margin" Value="0,2,0,0"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="{x:Type ComboBoxItem}" TargetType="{x:Type ComboBoxItem}">
+        <Setter Property="SnapsToDevicePixels" Value="true"/>
+        <Setter Property="OverridesDefaultStyle" Value="true"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ComboBoxItem}">
+                    <Border Name="Border"
+                            Padding="2"
+                            Margin="8,0,5,0"
+                            SnapsToDevicePixels="true">
+                        <ContentPresenter />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsHighlighted" Value="true">
+                            <Setter TargetName="Border" Property="Background" Value="{StaticResource SubstrateColor}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter TargetName="Border" Property="Background" Value="Transparent"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="CheckBoxTransparentStyle" TargetType="{x:Type CheckBox}">
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <Border Background="Transparent">
+                        <ContentPresenter/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="CheckBoxStyle" TargetType="{x:Type CheckBox}">
+        <Setter Property="Height" Value="22"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type CheckBox}">
+                    <StackPanel Orientation="Horizontal">
+                        <Border BorderThickness="1"
+                                Name="Border"
+                                Width="22"
+                                Height="22"
+                                BorderBrush="{StaticResource MainGrayColor}"
+                                CornerRadius="3"
+                                Background="White"
+                                VerticalAlignment="Center">
+
+                            <CheckBox Style="{StaticResource CheckBoxTransparentStyle}"
+                                      Name="CheckBox"
+                                      IsChecked="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsChecked, Mode=TwoWay}">
+                                <Image Width="13" Height="10"
+                                       x:Name="Image"
+                                       Source="pack://application:,,,/Views/Images/bnt_cheсk.png"
+                                       Visibility="Collapsed"
+                                       VerticalAlignment="Center"
+                                       HorizontalAlignment="Center"/>
+                            </CheckBox>
+                        </Border>
+                        <TextBlock Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Content}"
+                                   FontSize="16px"
+                                   FontWeight="Regular"
+                                   VerticalAlignment="Center"
+                                   Margin="12,0,0,0"
+                                   Foreground="{StaticResource MainBlackColor}"/>
+                    </StackPanel>
+                    <ControlTemplate.Triggers>
+                        <DataTrigger Binding="{Binding ElementName=CheckBox, Path=IsChecked}" Value="True">
+                            <Setter Property="BorderBrush" TargetName="Border" Value="{StaticResource ButtonNormalColor}"/>
+                            <Setter Property="Background" TargetName="Border" Value="{StaticResource ButtonNormalColor}"/>
+                            <Setter Property="Visibility" TargetName="Image" Value="Visible"/>
+                        </DataTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <DataTemplate x:Key="TrackDateTemplate">
+        <Button HorizontalAlignment="Stretch"
+                                        Margin="2"
+                                        Style="{StaticResource ButtonTransparentStyle}">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="MouseDoubleClick">
+                    <i:InvokeCommandAction Command="{Binding ElementName=Self, Path=DataContext.SelectedCommand}"
+                                                                   CommandParameter="{Binding}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+            <Border BorderThickness="1"
+                                            x:Name="Border"
+                                            HorizontalAlignment="Stretch"
+                                            BorderBrush="{StaticResource MainGrayColor}"
+                                            CornerRadius="1">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{StaticResource ButtonHoverColor}"/>
+                            </Trigger>
+                            <DataTrigger Value="True">
+                                <DataTrigger.Binding>
+                                    <MultiBinding>
+                                        <MultiBinding.Converter>
+                                            <converters:EqualityConverter />
+                                        </MultiBinding.Converter>
+                                        <Binding/>
+                                        <Binding ElementName="Self" Path="DataContext.SelectedTrack" />
+                                    </MultiBinding>
+                                </DataTrigger.Binding>
+                                <Setter Property="Background" Value="{StaticResource ButtonNormalColor}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+
+                <Grid HorizontalAlignment="Stretch"
+                                              Margin="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="2*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0"
+                                                   FontSize="14px"
+                                                   FontWeight="Regular"
+                                                   Foreground="{StaticResource MainBlackColor}"
+                                                   Text="{Binding Title}"/>
+                    <TextBlock Grid.Row="1"
+                                                   FontSize="10px"
+                                                   FontWeight="Regular"
+                                                   Foreground="{StaticResource MainGrayColor}"
+                                                   Text="{Binding Artist}"/>
+
+                </Grid>
+            </Border>
+        </Button>
+    </DataTemplate>
+
+
+
+</ResourceDictionary>
