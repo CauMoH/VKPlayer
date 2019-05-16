@@ -50,9 +50,9 @@ namespace VKPlayer.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("100")]
-        public int Count {
+        public uint Count {
             get {
-                return ((int)(this["Count"]));
+                return ((uint)(this["Count"]));
             }
             set {
                 this["Count"] = value;

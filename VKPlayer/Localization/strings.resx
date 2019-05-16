@@ -207,4 +207,13 @@
   <data name="NextContent" xml:space="preserve">
     <value>Следующие</value>
   </data>
+  <data name="GetRecommendations" xml:space="preserve">
+    <value>Рекомендации</value>
+  </data>
+  <data name="Friends" xml:space="preserve">
+    <value>Друзья</value>
+  </data>
+  <data name="Groups" xml:space="preserve">
+    <value>Группы</value>
+  </data>
 </root>

@@ -25,35 +25,78 @@
                      Minimum="0" Maximum="{Binding TotalProgress}" Value="{Binding ProcessingProgress}"
                      Style="{StaticResource ProgressBarStyle}"/>
 
-        <StackPanel Grid.Row="1"
-                    Orientation="Horizontal">
-            <Button Margin="0,0,5,0"
-                    Height="35"
-                    Width="35"
-                    Command="{Binding PreviousTrackCommand}"
-                    Style="{StaticResource PlayerButtonStyle}"
-                    Content="pack://application:,,,/Views/Images/left.png"/>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-            <Button Margin="0,0,5,0"
+            <StackPanel Grid.Column="0"
+                        HorizontalAlignment="Left"
+                        Orientation="Horizontal">
+                <Button Margin="0,0,5,0"
+                        Height="35"
+                        Width="35"
+                        Command="{Binding PreviousTrackCommand}"
+                        Style="{StaticResource PlayerButtonStyle}"
+                        Content="pack://application:,,,/Views/Images/left.png"/>
+
+                <Button Margin="0,0,5,0"
                         Height="35"
                         Width="35"
                         Command="{Binding PlayPauseCommand}"
                         Style="{StaticResource PlayerPlayPauseButtonStyle}"/>
 
-            <Button Margin="0,0,5,0"
+                <Button Margin="0,0,5,0"
                         Height="35"
                         Width="35"
                         Command="{Binding StopCommand}"
                         Style="{StaticResource PlayerButtonStyle}"
                         Content="pack://application:,,,/Views/Images/stop.png"/>
 
-            <Button Margin="0,0,5,0"
+                <Button Margin="0,0,5,0"
                         Height="35"
                         Width="35"
                         Command="{Binding NextTrackCommand}"
                         Style="{StaticResource PlayerButtonStyle}"
                         Content="pack://application:,,,/Views/Images/right.png"/>
-        </StackPanel>
+            </StackPanel>
+
+            <Grid Grid.Column="1"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Center"
+                  Margin="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0"
+                           FontSize="14px"
+                           FontWeight="Regular"
+                           Foreground="{StaticResource MainBlackColor}"
+                           TextTrimming="CharacterEllipsis"
+                           Text="{Binding SelectedTrack.Title}"/>
+                <TextBlock Grid.Row="1"
+                           FontSize="10px"
+                           FontWeight="Regular"
+                           TextTrimming="CharacterEllipsis"
+                           Foreground="{StaticResource MainGrayColor}"
+                           Text="{Binding SelectedTrack.Artist}"/>
+
+            </Grid>
+
+            <TextBlock Grid.Column="2"
+                       HorizontalAlignment="Right"
+                       VerticalAlignment="Center"
+                       Foreground="{StaticResource MainBlackColor}"
+                       FontWeight="Regular"
+                       Margin="0,0,5,0"
+                       FontSize="15px"
+                       Text="{Binding Duration}"/>
+
+        </Grid>
 
     </Grid>
 

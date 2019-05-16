@@ -160,6 +160,15 @@ namespace VKPlayer.Localization {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Друзья.
+        /// </summary>
+        public static string Friends {
+            get {
+                return ResourceManager.GetString("Friends", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на ОБЩИЕ.
         /// </summary>
         public static string General {
@@ -183,6 +192,24 @@ namespace VKPlayer.Localization {
         public static string GetPopular {
             get {
                 return ResourceManager.GetString("GetPopular", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Рекомендации.
+        /// </summary>
+        public static string GetRecommendations {
+            get {
+                return ResourceManager.GetString("GetRecommendations", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Группы.
+        /// </summary>
+        public static string Groups {
+            get {
+                return ResourceManager.GetString("Groups", resourceCulture);
             }
         }
         

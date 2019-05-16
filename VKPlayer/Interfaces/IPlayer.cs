@@ -60,6 +60,11 @@ namespace VKPlayer.Interfaces
         /// Событие - изменилась длина трека
         /// </summary>
         event EventHandler<ILengthChangedEventArgs> LengthChanged;
+
+        /// <summary>
+        /// Событие - конец достигнут
+        /// </summary>
+        event EventHandler<IEndReachedEventArgs> EndReached;
     }
 
     public interface IPlayerStateChangedEventArgs
@@ -75,5 +80,10 @@ namespace VKPlayer.Interfaces
     public interface ILengthChangedEventArgs
     {
         long Length { get; }
+    }
+
+    public interface IEndReachedEventArgs
+    {
+
     }
 }

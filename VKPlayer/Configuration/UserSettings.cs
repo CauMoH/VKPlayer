@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Security;
+using System.ServiceModel.Channels;
 using VKPlayer.AppCommon;
 using VKPlayer.Common;
 using VKPlayer.Configuration.XmlCommon;
@@ -25,6 +26,7 @@ namespace VKPlayer.Configuration
             set => _password.SetSecure(value);
         }
         public string AccessToken { get; set; }
+        public uint UserId { get; set; }
 
         #endregion
 
@@ -38,7 +40,8 @@ namespace VKPlayer.Configuration
                 .Setting(nameof(UserName), () => UserName)
                 .Setting(nameof(Password), _password.GetProtected, _password.SetProtected)
                 .Block("General", bi => bi
-                .Setting(nameof(AccessToken), () => AccessToken))
+                .Setting(nameof(AccessToken), () => AccessToken)
+                .Setting(nameof(UserId), () => UserId))
                 .Block("VKPlayer_MainWindow", bi => bi
                     .Setting(nameof(MainWindowSettings.Top), () => MainWindowSettings.Top)
                     .Setting(nameof(MainWindowSettings.Left), () => MainWindowSettings.Left)
@@ -104,6 +107,7 @@ namespace VKPlayer.Configuration
             UserName = string.Empty;
             _password.Reset();
             AccessToken = string.Empty;
+            UserId = 0;
 
             MainWindowSettings = new WindowDimensions();
 

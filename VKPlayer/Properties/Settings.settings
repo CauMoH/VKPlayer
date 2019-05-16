@@ -8,7 +8,7 @@
     <Setting Name="WindowMinWidth" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">500</Value>
     </Setting>
-    <Setting Name="Count" Type="System.Int32" Scope="User">
+    <Setting Name="Count" Type="System.UInt32" Scope="User">
       <Value Profile="(Default)">100</Value>
     </Setting>
   </Settings>

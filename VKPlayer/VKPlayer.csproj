@@ -34,12 +34,13 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>VKPlayer.App</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Views\Images\ico.ico</ApplicationIcon>
+    <ApplicationIcon>ico.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CommonServiceLocator, Version=2.0.4.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
@@ -139,11 +140,15 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Enums\PlaylistType.cs" />
     <Compile Include="EventArgs\CaptchaEnteredEventArgs.cs" />
+    <Compile Include="Helpers\ImageHelper.cs" />
     <Compile Include="Interfaces\IPlayer.cs" />
     <Compile Include="PlayerEngine\PlayerVLCService.cs" />
     <Compile Include="ViewModels\CaptchaViewModel.cs" />
     <Compile Include="ViewModels\ConnectionSetupViewModel.cs" />
+    <Compile Include="ViewModels\FriendViewModel.cs" />
+    <Compile Include="ViewModels\GroupViewModel.cs" />
     <Compile Include="ViewModels\TwoFactorAuthorizationViewModel.cs" />
     <Compile Include="Views\AuthStatus.xaml.cs">
       <DependentUpon>AuthStatus.xaml</DependentUpon>
@@ -863,6 +868,7 @@
     <Content Include="lib\x86\plugins\stream_out\libstream_out_transcode_plugin.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Setup\setup.iss" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

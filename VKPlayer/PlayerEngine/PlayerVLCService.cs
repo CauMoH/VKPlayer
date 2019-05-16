@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
 using VKPlayer.Enums;
 using VKPlayer.Interfaces;
 using VKPlayer.Logging;
@@ -49,7 +50,8 @@ namespace VKPlayer.PlayerEngine
             {
                 LoggerFacade.WriteError(Localization.strings.PlayerNotLoaded, e, isShow: true);
             }
-
+            
+            _vlcMediaPlayer.EndReached += VlcMediaPlayer_OnEndReached;
             _vlcMediaPlayer.PositionChanged += VlcMediaPlayer_OnPositionChanged;
             _vlcMediaPlayer.LengthChanged += VlcMediaPlayer_OnLengthChanged;
             _vlcMediaPlayer.Stopped += VlcMediaPlayer_OnStopped;
@@ -102,6 +104,11 @@ namespace VKPlayer.PlayerEngine
             {
                 PlayerState = PlayerState
             });
+        }
+
+        private void VlcMediaPlayer_OnEndReached(object sender, VlcMediaPlayerEndReachedEventArgs e)
+        {
+            EndReached?.Invoke(this, new EndReachedEventArgs());
         }
 
         #endregion
@@ -166,6 +173,7 @@ namespace VKPlayer.PlayerEngine
         public event EventHandler<IPlayerStateChangedEventArgs> PlayerStateChanged;
         public event EventHandler<IPositionChangedEventArgs> PositionChanged;
         public event EventHandler<ILengthChangedEventArgs> LengthChanged;
+        public event EventHandler<IEndReachedEventArgs> EndReached;
 
         #endregion
 
@@ -183,5 +191,11 @@ namespace VKPlayer.PlayerEngine
         {
             public long Length { get; set; }
         }
+
+        private sealed class EndReachedEventArgs : IEndReachedEventArgs
+        {
+            
+        }
+
     }
 }

@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows.Input;
 using Logging;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,6 +12,8 @@ using Prism.Commands;
 using Prism.Mvvm;
 using VkNet;
 using VkNet.AudioBypassService.Extensions;
+using VkNet.Enums.Filters;
+using VkNet.Enums.SafetyEnums;
 using VkNet.Exception;
 using VkNet.Model;
 using VkNet.Model.RequestParams;
@@ -20,15 +25,18 @@ using VKPlayer.Extension;
 using VKPlayer.Interfaces;
 using VKPlayer.Logging;
 using VKPlayer.PlayerEngine;
-using VKPlayer.Properties;
 using VKPlayer.UiHelpers;
 using Audio = VkNet.Model.Attachments.Audio;
+using Settings = VKPlayer.Properties.Settings;
+using Timer = System.Timers.Timer;
 
 namespace VKPlayer.ViewModels
 {
     public class MainViewModel : BindableBase
     {
         #region Members
+
+        private uint _userId;
 
         private VkApi _api;
 
@@ -44,7 +52,17 @@ namespace VKPlayer.ViewModels
 
         private double _processingProgress;
 
-        private long _offset;
+        private uint _offset;
+
+        private readonly Timer _updateIsAuthorizedTimer = new Timer(1000);
+
+        private FriendViewModel _selectedFriend;
+
+        private GroupViewModel _selectedGroup;
+
+        private PlaylistType _playlistType = PlaylistType.None;
+
+        private string _duration;
 
         #endregion
 
@@ -109,6 +127,33 @@ namespace VKPlayer.ViewModels
         }
 
         /// <summary>
+        /// Тип плэйлиста
+        /// </summary>
+        public PlaylistType PlaylistType
+        {
+            get => _playlistType;
+            set
+            {
+                if (value != _playlistType)
+                {
+                    _playlistType = value;
+                    RaisePropertyChanged(nameof(PlaylistType));
+
+                    if (_playlistType != PlaylistType.Search)
+                    {
+                        Query = string.Empty;
+                    }
+
+                    if (_playlistType != PlaylistType.UserOrGroup)
+                    {
+                        SelectedFriend = null;
+                        SelectedGroup = null;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Статус авторизации
         /// </summary>
         public bool AuthorizationStatus => _api.IsAuthorized;
@@ -140,6 +185,67 @@ namespace VKPlayer.ViewModels
             set => SetProperty(ref _processingProgress, value);
         }
 
+        /// <summary>
+        /// Список друзей пользователя
+        /// </summary>
+        public ObservableCollection<FriendViewModel> Friends { get; } = new ObservableCollection<FriendViewModel>();
+
+        /// <summary>
+        /// Список групп пользователя
+        /// </summary>
+        public ObservableCollection<GroupViewModel> Groups { get; } = new ObservableCollection<GroupViewModel>();
+
+        /// <summary>
+        /// Выбранный плейлист друга
+        /// </summary>
+        public FriendViewModel SelectedFriend
+        {
+            get => _selectedFriend;
+            set
+            {
+                if (value != _selectedFriend)
+                {
+                    _selectedFriend = value;
+                    RaisePropertyChanged(nameof(SelectedFriend));
+
+                    if (_selectedFriend != null)
+                    {
+                        GetUserOrGroupMusic(_selectedFriend.Id);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Выбранный плейлист группы
+        /// </summary>
+        public GroupViewModel SelectedGroup
+        {
+            get => _selectedGroup;
+            set
+            {
+                if (value != _selectedGroup)
+                {
+                    _selectedGroup = value;
+                    RaisePropertyChanged(nameof(SelectedGroup));
+
+                    if (_selectedGroup != null)
+                    {
+                        GetUserOrGroupMusic(-_selectedGroup.Id);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Время трека
+        /// </summary>
+        public string Duration
+        {
+            get => _duration;
+            set => SetProperty(ref _duration, value);
+        }
+
         #endregion
 
         public MainViewModel()
@@ -159,8 +265,10 @@ namespace VKPlayer.ViewModels
             InitViewModels();
 
             InitCommands();
-        }
 
+            _updateIsAuthorizedTimer.Elapsed += UpdateIsAuthorizedTimer_OnElapsed;
+        }
+       
         #region Initialize
 
         /// <summary>
@@ -182,8 +290,9 @@ namespace VKPlayer.ViewModels
             _player.LengthChanged += Player_OnLengthChanged;
             _player.PlayerStateChanged += Player_OnPlayerStateChanged;
             _player.PositionChanged += Player_OnPositionChanged;
+            _player.EndReached += Player_OnEndReached;
         }
-
+        
         /// <summary>
         /// Инициализация вью моделей
         /// </summary>
@@ -214,7 +323,8 @@ namespace VKPlayer.ViewModels
                     ApplicationId = AppInfo.VkAppId,
                     AccessToken = UserSettings.AccessToken,
                     CaptchaSid = captchaSid,
-                    CaptchaKey = captchaKey
+                    CaptchaKey = captchaKey,
+                    Settings = VkNet.Enums.Filters.Settings.All
                 });
             }
             catch (CaptchaNeededException e)
@@ -227,8 +337,22 @@ namespace VKPlayer.ViewModels
                 LoggerFacade.WriteError(Localization.strings.AuthorizeError, e, isShow: true);
                 ConnectionSettingsCommand.Execute(null);
             }
-
+            var fr = _api.Friends.Get(new FriendsGetParams()
+            {
+                Fields = ProfileFields.Photo50
+            });
+          
             RaisePropertyChanged(nameof(AuthorizationStatus));
+
+            if (AuthorizationStatus)
+            {
+                _updateIsAuthorizedTimer.Start();
+                OnLoad();
+            }
+            else
+            {
+                _updateIsAuthorizedTimer.Stop();
+            }
         }
 
         /// <summary>
@@ -256,15 +380,14 @@ namespace VKPlayer.ViewModels
                                 return code;
                             },
                             CaptchaSid = captchaSid,
-                            CaptchaKey = captchaKey
+                            CaptchaKey = captchaKey,
+                            Settings = VkNet.Enums.Filters.Settings.All
                         });
-
-
-                        TwoFactorAuthorizationViewModel.IsOpen = false;
 
                         if (_api.IsAuthorized)
                         {
                             UserSettings.AccessToken = _api.Token;
+                            if (_api.UserId != null) UserSettings.UserId = (uint) _api.UserId;
                             UserSettings.Save();
                         }
                     }
@@ -272,7 +395,6 @@ namespace VKPlayer.ViewModels
                     {
                         UiInvoker.Invoke(() =>
                         {
-                            TwoFactorAuthorizationViewModel.IsOpen = false;
                             CaptchaViewModel.Open(e.Sid, e.Img);
                         });
                     }
@@ -282,7 +404,7 @@ namespace VKPlayer.ViewModels
 
                         UiInvoker.Invoke(() =>
                         {
-                            TwoFactorAuthorizationViewModel.IsOpen = false;
+                            
                             ConnectionSettingsCommand.Execute(null);
                         });
                     }
@@ -290,13 +412,41 @@ namespace VKPlayer.ViewModels
                     {
                         UiInvoker.Invoke(() =>
                         {
+                            TwoFactorAuthorizationViewModel.IsOpen = false;
+
                             RaisePropertyChanged(nameof(AuthorizationStatus));
+
+                            if (AuthorizationStatus)
+                            {
+                                _updateIsAuthorizedTimer.Start();
+                                OnLoad();
+                            }
+                            else
+                            {
+                                _updateIsAuthorizedTimer.Stop();
+                            }
                         });
                     }
                 });
         }
 
         #endregion
+
+        /// <summary>
+        /// Очистка параметров
+        /// </summary>
+        private void Clear()
+        {
+            StopCommand.Execute(null);
+
+            Tracks.Clear();
+            Friends.Clear();
+            Groups.Clear();
+            SelectedFriend = null;
+            SelectedGroup = null;
+            
+            _offset = 0;
+        }
 
         /// <summary>
         /// Играть первый трек в списке
@@ -333,7 +483,197 @@ namespace VKPlayer.ViewModels
             _offset = 0;
         }
 
+        /// <summary>
+        /// Расчет строки времени трека
+        /// </summary>
+        private void CalculateDuration()
+        {
+            var totalTimeSpan = TimeSpan.FromMilliseconds(TotalProgress);
+            var progressTimeSpan = TimeSpan.FromMilliseconds(ProcessingProgress);
+
+            var progressString = progressTimeSpan.ToString(@"mm\:ss");
+            var totalString = totalTimeSpan.ToString(@"mm\:ss");
+
+            Duration = progressString + @"\" + totalString;
+        }
+
+        #region Get Music
+
+        /// <summary>
+        /// Получить списко аудиозаписей пользователя или сообщества
+        /// </summary>
+        private void GetUserOrGroupMusic(long? id, bool isNextLoad = false)
+        {
+            if (!isNextLoad)
+                _offset = 0; 
+
+            if (id == _userId)
+            {
+                SelectedFriend = null;
+                SelectedGroup = null;
+            }
+            else
+            {
+                if (SelectedFriend != null && SelectedFriend.Id == id)
+                {
+                    SelectedGroup = null;
+                }
+                else
+                {
+                    if (SelectedGroup != null && SelectedGroup.Id == id)
+                    {
+                        SelectedFriend = null;
+                    }
+                }
+            }
+            
+            PlaylistType = PlaylistType.UserOrGroup;
+
+            Task.Run(() =>
+            {
+                try
+                {
+                    var audios = _api.Audio.Get(new AudioGetParams
+                    {
+                        OwnerId = id,
+                        Count = Settings.Default.Count,
+                        Offset = _offset
+                    });
+
+                    LoadTracks(audios, isNextLoad);
+                }
+                catch (Exception e)
+                {
+                    LoggerFacade.WriteError(e.Message, isShow:true);
+                }
+            });
+        }
+
+        /// <summary>
+        /// Получить популярные аудиозаписи
+        /// </summary>
+        private void GetPopular(bool isNextLoad = false)
+        {
+            if (!isNextLoad)
+                _offset = 0;
+
+            PlaylistType = PlaylistType.Popular;
+
+            Task.Run(() =>
+            {
+                var audios = _api.Audio.GetPopular(false, null, Settings.Default.Count, _offset);
+
+                LoadTracks(audios, isNextLoad);
+            });
+        }
+
+        /// <summary>
+        /// Получить рекомендованные аудиозаписи
+        /// </summary>
+        private void GetRecommendations(bool isNextLoad = false)
+        {
+            if (!isNextLoad)
+                _offset = 0;
+
+            PlaylistType = PlaylistType.Recommendations;
+
+            Task.Run(() =>
+            {
+                var audios = _api.Audio.GetRecommendations(null, _userId, Settings.Default.Count, _offset);
+
+                LoadTracks(audios, isNextLoad);
+            });
+        }
+
+        /// <summary>
+        /// Получить аудиозаписи из посика
+        /// </summary>
+        private void GetSearch(bool isNextLoad = false)
+        {
+            if (!isNextLoad)
+                _offset = 0;
+
+            PlaylistType = PlaylistType.Search;
+
+            Task.Run(() =>
+            {
+                var audios = _api.Audio.Search(new AudioSearchParams()
+                {
+                    Count = Settings.Default.Count,
+                    Offset = _offset,
+                    Autocomplete = true,
+                    Query = Query
+                });
+
+                LoadTracks(audios, isNextLoad);
+            });
+        }
+
+        /// <summary>
+        /// Загрузить список треков
+        /// </summary>
+        private void LoadTracks(IEnumerable<Audio> audios, bool isNextLoad = false)
+        {
+            UiInvoker.Invoke(() =>
+            {
+                if(!isNextLoad)
+                    ClearTracks();
+
+                foreach (var audio in audios)
+                {
+                    Tracks.Add(audio);
+                }
+            });
+        }
+
+        #endregion
+        
         #region Others
+
+        /// <summary>
+        /// Загрузка
+        /// </summary>
+        public void OnLoad()
+        {
+            _userId = UserSettings.UserId;
+
+            Task.Factory.StartNew(() =>
+            {
+                try
+                {
+                    var friends =_api.Friends.Get(new FriendsGetParams
+                    {
+                        Fields = ProfileFields.Photo50,
+                        Order = FriendsOrder.Hints
+                    });
+
+                    var groups = _api.Groups.Get(new GroupsGetParams
+                    {
+                        Extended = true
+                    });
+
+                    UiInvoker.Invoke(() =>
+                    {
+                        Friends.Clear();
+                        Groups.Clear();
+
+                        foreach (var friend in friends)
+                        {
+                            Friends.Add(new FriendViewModel(friend));
+                        }
+
+                        foreach (var group in groups)
+                        {
+                            Groups.Add(new GroupViewModel(group));
+                        }
+                    });
+                }
+                catch (Exception e)
+                {
+                    LoggerFacade.WriteError(e);
+                }
+            });
+        }
 
         public void OnUnload()
         {
@@ -391,16 +731,31 @@ namespace VKPlayer.ViewModels
         private void Player_OnPositionChanged(object sender, IPositionChangedEventArgs e)
         {
             ProcessingProgress = e.Position * TotalProgress;
+            CalculateDuration();
         }
 
         private void Player_OnPlayerStateChanged(object sender, IPlayerStateChangedEventArgs e)
         {
             PlayerState = e.PlayerState;
+
+            if (PlayerState == PlayerState.Stopped)
+            {
+                Duration = string.Empty;
+            }
         }
 
         private void Player_OnLengthChanged(object sender, ILengthChangedEventArgs e)
         {
             TotalProgress = e.Length;
+            CalculateDuration();
+        }
+
+        private void Player_OnEndReached(object sender, IEndReachedEventArgs e)
+        {
+            ThreadPool.QueueUserWorkItem(a =>
+            {
+                NextTrackCommand.Execute(null);
+            });
         }
 
         #endregion
@@ -414,6 +769,19 @@ namespace VKPlayer.ViewModels
 
         #endregion
 
+        #region Timers
+
+        private void UpdateIsAuthorizedTimer_OnElapsed(object sender, ElapsedEventArgs e)
+        {
+            if (!_api.IsAuthorized)
+            {
+                _updateIsAuthorizedTimer.Stop();
+                Clear();
+            }
+        }
+
+        #endregion
+
         #endregion
 
         #region Commands
@@ -421,23 +789,22 @@ namespace VKPlayer.ViewModels
         private void InitCommands()
         {
             ConnectionSettingsCommand = new DelegateCommand(ConnectionSettingsExecute);
-            SearchCommand = new DelegateCommand(SearchExecute);
-            GetPopularCommand = new DelegateCommand(GetPopularExecute);
+            NextContentCommand = new DelegateCommand(NextContentExecute);
             SelectedCommand = new DelegateCommand<Audio>(SelectedExecute);
             PreviousTrackCommand = new DelegateCommand(PreviousTrackExecute);
             NextTrackCommand = new DelegateCommand(NextTrackExecute);
             PlayPauseCommand = new DelegateCommand(PlayPauseExecute);
             StopCommand = new DelegateCommand(StopExecute);
             DownloadCommand = new DelegateCommand(DownloadExecute);
+            SearchCommand = new DelegateCommand(SearchExecute);
+            GetPopularCommand = new DelegateCommand(GetPopularExecute);
             GetMyMusicCommand = new DelegateCommand(GetMyMusicExecute);
-            NextContentCommand = new DelegateCommand(NextContentExecute);
+            GetRecommendationsCommand = new DelegateCommand(GetRecommendationsExecute);
         }
 
         #region Command Props
 
         public ICommand ConnectionSettingsCommand { get; private set; }
-
-        public ICommand SearchCommand { get; private set; }
 
         public ICommand SelectedCommand { get; private set; }
 
@@ -449,14 +816,18 @@ namespace VKPlayer.ViewModels
 
         public ICommand StopCommand { get; private set; }
 
+        public ICommand NextContentCommand { get; private set; }
+
         public ICommand DownloadCommand { get; private set; }
+
+        public ICommand SearchCommand { get; private set; }
 
         public ICommand GetPopularCommand { get; private set; }
 
         public ICommand GetMyMusicCommand { get; private set; }
 
-        public ICommand NextContentCommand { get; private set; }
-
+        public ICommand GetRecommendationsCommand { get; private set; }
+        
         #endregion
 
         private void ConnectionSettingsExecute()
@@ -464,34 +835,39 @@ namespace VKPlayer.ViewModels
             ConnectionSetupViewModel.OpenConnectionSettings();
         }
 
-        private void SearchExecute()
-        {
-            //_apiEngine.SearchTracks(Query, UserSettings.SearchType, UserSettings.SearchPageCount, UserSettings.SearchNococrrect);
-        }
-
-        private void GetPopularExecute()
-        {
-            //_apiEngine.GetFeed();
-        }
-
-        private void GetMyMusicExecute()
-        {
-            ClearTracks();
-
-            var audios = _api.Audio.Get(new AudioGetParams()
-            {
-                Count = Settings.Default.Count
-            });
-
-            foreach (var audio in audios)
-            {
-                Tracks.Add(audio);
-            }
-        }
-
         private void NextContentExecute()
         {
-            //_api.Audio.GetPopular()
+            _offset = _offset + Settings.Default.Count;
+
+            switch (PlaylistType)
+            {
+                case PlaylistType.Popular:
+                    GetPopular(isNextLoad:true);
+                    break;
+
+                case PlaylistType.UserOrGroup:
+                    if (SelectedFriend != null)
+                    {
+                        GetUserOrGroupMusic(SelectedFriend.Id, isNextLoad:true);
+                    }
+                    else if (SelectedGroup != null)
+                    {
+                        GetUserOrGroupMusic(SelectedGroup.Id, isNextLoad: true);
+                    }
+                    else
+                    {
+                        GetUserOrGroupMusic(_userId, isNextLoad: true);
+                    }
+                    break;
+
+                case PlaylistType.Recommendations:
+                    GetRecommendations(isNextLoad: true);
+                    break;
+
+                case PlaylistType.Search:
+                    GetSearch(isNextLoad:true);
+                    break;
+            }
         }
 
         private void SelectedExecute(Audio track)
@@ -584,7 +960,27 @@ namespace VKPlayer.ViewModels
 
         private async void DownloadExecute()
         {
-            
+
+        }
+
+        private void SearchExecute()
+        {
+            GetSearch();
+        }
+
+        private void GetPopularExecute()
+        {
+            GetPopular();
+        }
+
+        private void GetMyMusicExecute()
+        {
+            GetUserOrGroupMusic(_userId);
+        }
+
+        private void GetRecommendationsExecute()
+        {
+            GetRecommendations();
         }
 
         #endregion
