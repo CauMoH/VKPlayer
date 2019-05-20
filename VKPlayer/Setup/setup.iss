@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "VKPlayer"
-#define MyAppVersion "0.0.0.1"
+#define MyAppVersion "0.0.0.2"
 #define MyAppPublisher "CauMoH"
 #define MyAppExeName "VKPlayer.exe"
 #define Net461InstallerUrl "https://download.microsoft.com/download/E/4/1/E4173890-A24A-4936-9FC9-AF930FE3FA40/NDP461-KB3102436-x86-x64-AllOS-ENU.exe"

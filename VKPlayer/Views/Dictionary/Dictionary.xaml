@@ -44,6 +44,8 @@
     <SolidColorBrush x:Key="ProgressBarIndicatorColor">#11AC17</SolidColorBrush>
     <SolidColorBrush x:Key="ProgressBarBackgroundColor">#F7F7F7</SolidColorBrush>
     <SolidColorBrush x:Key="GroupBoxTitleColor">#6A6D74</SolidColorBrush>
+    <SolidColorBrush x:Key="BlueBrush" Color="#FF008DD2"/>
+    <SolidColorBrush x:Key="ContextMenuItemMouseOver">#CBE4F2</SolidColorBrush>
 
     <Style x:Key="ButtonTransparentStyle" TargetType="{x:Type Button}">
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
@@ -615,9 +617,29 @@
     </Style>
 
     <DataTemplate x:Key="TrackDateTemplate">
-        <Button HorizontalAlignment="Stretch"
+        <Button Name="TrackButton"
+                Tag="{Binding ElementName=Self, Path=DataContext}"
+                HorizontalAlignment="Stretch"
                 Margin="2"
                 Style="{StaticResource ButtonTransparentStyle}">
+            <Button.ContextMenu>
+                <ContextMenu Tag="{Binding PlacementTarget.Tag,	RelativeSource={RelativeSource Self}}">
+                    <MenuItem Header="{x:Static localization:strings.DownloadTrack}" 
+                              Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor ,AncestorType=ContextMenu}, Path=Tag.DownloadTrackCommand}"
+                              CommandParameter="{Binding}">
+                        <MenuItem.Icon>
+                            <Image Source="pack://application:,,,/Views/Images/btn_download.png"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <Separator/>
+                    <MenuItem Header="{x:Static localization:strings.DownloadPlaylist}" 
+                              Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor ,AncestorType=ContextMenu}, Path=Tag.DownloadCommand}">
+                        <MenuItem.Icon>
+                            <Image Source="pack://application:,,,/Views/Images/btn_download.png"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </ContextMenu>
+            </Button.ContextMenu>
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="MouseDoubleClick">
                     <i:InvokeCommandAction Command="{Binding ElementName=Self, Path=DataContext.SelectedCommand}"
@@ -652,29 +674,105 @@
                     </Style>
                 </Border.Style>
 
-                <Grid HorizontalAlignment="Stretch"
-                                              Margin="2">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="2*"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
+                <Grid Margin="2"
+                      HorizontalAlignment="Stretch">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Row="0"
-                                                   FontSize="14px"
-                                                   FontWeight="Regular"
-                                                   Foreground="{StaticResource MainBlackColor}"
-                                                   Text="{Binding Title}"/>
-                    <TextBlock Grid.Row="1"
-                                                   FontSize="10px"
-                                                   FontWeight="Regular"
-                                                   Foreground="{StaticResource MainGrayColor}"
-                                                   Text="{Binding Artist}"/>
+                    <Grid Grid.Column="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="2*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0"
+                                   FontSize="14px"
+                                   FontWeight="Regular"
+                                   TextTrimming="CharacterEllipsis"
+                                   Foreground="{StaticResource MainBlackColor}"
+                                   Text="{Binding Title}"/>
+                        <TextBlock Grid.Row="1"
+                                   FontSize="10px"
+                                   FontWeight="Regular"
+                                   TextTrimming="CharacterEllipsis"
+                                   Foreground="{StaticResource MainGrayColor}"
+                                   Text="{Binding Artist}"/>
+
+                    </Grid>
+                    
+                    <TextBlock Grid.Column="1"
+                               FontSize="10px"
+                               FontWeight="Regular"
+                               VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis"
+                               Foreground="{StaticResource MainGrayColor}"
+                               Text="{Binding Duration, StringFormat=mm\\:ss}"/>
 
                 </Grid>
             </Border>
         </Button>
     </DataTemplate>
 
+    <Style x:Key="ScrollBarPageButtonStyle" TargetType="{x:Type RepeatButton}">
+        <Setter Property="IsTabStop" Value="False"/>
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type RepeatButton}">
+                    <Border BorderBrush="Transparent"></Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="ScrollBarThumbStyle" TargetType="{x:Type Thumb}">
+        <Setter Property="IsTabStop" Value="False"/>
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="Margin" Value="0,0,0,0" />
+        <Setter Property="Width" Value="7"/>
+        <Setter Property="BorderThickness" Value="0,0,0,0"/>
+        <Setter Property="BorderBrush" Value="{StaticResource BlueBrush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Thumb}">
+                    <Rectangle Fill="#ababab" Margin="0" RadiusX="2" RadiusY="2"></Rectangle>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Width" Value="10"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <ControlTemplate x:Key="VerticalScrollBar" TargetType="{x:Type ScrollBar}">
+        <Grid Background="Transparent">
+            <Grid.RowDefinitions>
+                <RowDefinition MaxHeight="15"/>
+                <RowDefinition Height="*" />
+                <RowDefinition MaxHeight="15"/>
+            </Grid.RowDefinitions>
+
+            <Track Name="PART_Track" Grid.Row="1"
+                   IsDirectionReversed="True">
+                <Track.DecreaseRepeatButton>
+                    <RepeatButton Command="ScrollBar.PageUpCommand" Style="{StaticResource ScrollBarPageButtonStyle}">
+                    </RepeatButton>
+                </Track.DecreaseRepeatButton>
+                <Track.Thumb>
+                    <Thumb Style="{StaticResource ScrollBarThumbStyle}">
+                    </Thumb>
+                </Track.Thumb>
+                <Track.IncreaseRepeatButton>
+                    <RepeatButton Command="ScrollBar.PageDownCommand" Style="{StaticResource ScrollBarPageButtonStyle}">
+                    </RepeatButton>
+                </Track.IncreaseRepeatButton>
+            </Track>
+        </Grid>
+    </ControlTemplate>
 
 
 </ResourceDictionary>

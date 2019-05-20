@@ -124,11 +124,47 @@ namespace VKPlayer.Localization {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Папка загрузки.
+        /// </summary>
+        public static string DownloadFolder {
+            get {
+                return ResourceManager.GetString("DownloadFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Выбрать.
+        /// </summary>
+        public static string DownLoadFolderSelect {
+            get {
+                return ResourceManager.GetString("DownLoadFolderSelect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Не выбран каталог для загрузки (в настройках), либо каталог не существует..
+        /// </summary>
+        public static string DownloadPathError {
+            get {
+                return ResourceManager.GetString("DownloadPathError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Загрузить плейлист.
+        /// </summary>
+        public static string DownloadPlaylist {
+            get {
+                return ResourceManager.GetString("DownloadPlaylist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Загрузить.
         /// </summary>
-        public static string DownLoad {
+        public static string DownloadTrack {
             get {
-                return ResourceManager.GetString("DownLoad", resourceCulture);
+                return ResourceManager.GetString("DownloadTrack", resourceCulture);
             }
         }
         
@@ -156,6 +192,15 @@ namespace VKPlayer.Localization {
         public static string EnterUserName {
             get {
                 return ResourceManager.GetString("EnterUserName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Ошибка!.
+        /// </summary>
+        public static string Error {
+            get {
+                return ResourceManager.GetString("Error", resourceCulture);
             }
         }
         

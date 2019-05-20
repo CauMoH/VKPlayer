@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Security;
-using System.ServiceModel.Channels;
 using VKPlayer.AppCommon;
 using VKPlayer.Common;
 using VKPlayer.Configuration.XmlCommon;
@@ -27,6 +26,7 @@ namespace VKPlayer.Configuration
         }
         public string AccessToken { get; set; }
         public uint UserId { get; set; }
+        public string DownloadFolder { get; set; }
 
         #endregion
 
@@ -41,7 +41,8 @@ namespace VKPlayer.Configuration
                 .Setting(nameof(Password), _password.GetProtected, _password.SetProtected)
                 .Block("General", bi => bi
                 .Setting(nameof(AccessToken), () => AccessToken)
-                .Setting(nameof(UserId), () => UserId))
+                .Setting(nameof(UserId), () => UserId)
+                .Setting(nameof(DownloadFolder), () => DownloadFolder))
                 .Block("VKPlayer_MainWindow", bi => bi
                     .Setting(nameof(MainWindowSettings.Top), () => MainWindowSettings.Top)
                     .Setting(nameof(MainWindowSettings.Left), () => MainWindowSettings.Left)
@@ -102,12 +103,11 @@ namespace VKPlayer.Configuration
 
         private void Reset()
         {
-            //Настройки для подключения
-
             UserName = string.Empty;
             _password.Reset();
             AccessToken = string.Empty;
             UserId = 0;
+            DownloadFolder = string.Empty;
 
             MainWindowSettings = new WindowDimensions();
 

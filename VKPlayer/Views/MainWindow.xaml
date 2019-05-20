@@ -8,6 +8,9 @@
         xmlns:extension="clr-namespace:VKPlayer.Extension"
         xmlns:viewModels="clr-namespace:VKPlayer.ViewModels"
         xmlns:views1="clr-namespace:VKPlayer.Views"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:enums="clr-namespace:VKPlayer.Enums"
+        xmlns:converters="clr-namespace:VKPlayer.Views.Converters"
         mc:Ignorable="d"
         Loaded="MainWindow_OnLoaded"
         Closing="MainWindow_OnClosing"
@@ -30,6 +33,9 @@
                               x:Key="Tracks" 
                               Source="{Binding Tracks}">
         </CollectionViewSource>
+        <Style TargetType="{x:Type ScrollBar}">
+            <Setter Property="Template" Value="{StaticResource VerticalScrollBar}"/>
+        </Style>
     </Window.Resources>
 
     <Border BorderBrush="{StaticResource WindowBorderColor}"
@@ -253,11 +259,16 @@
                     </StackPanel>
 
                     <ListBox Grid.Row="2"
+                             Name="TracksListBox"
                              Margin="5"
                              HorizontalContentAlignment="Stretch"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                              ScrollViewer.CanContentScroll="False"
+                             ScrollViewer.ScrollChanged="ScrollViewer_OnScrollChanged"
                              ItemTemplate="{StaticResource TrackDateTemplate}">
+                        <i:Interaction.Behaviors>
+                            <extension:ScrollIntoViewForListBox />
+                        </i:Interaction.Behaviors>
                         <ListBox.Resources>
                             <Style TargetType="{x:Type ListBoxItem}">
                                 <Setter Property="Template">
@@ -281,39 +292,6 @@
                         <ListBox.ItemsSource>
                             <CompositeCollection>
                                 <CollectionContainer Collection="{Binding Source={StaticResource Tracks}}"/>
-                                <ListBoxItem>
-                                    <ListBoxItem.Style>
-                                        <Style TargetType="{x:Type ListBoxItem}">
-                                            <Setter Property="Template">
-                                                <Setter.Value>
-                                                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
-                                                        <Border x:Name="Bd"
-                                                                BorderBrush="{TemplateBinding BorderBrush}"
-                                                                BorderThickness="{TemplateBinding BorderThickness}"
-                                                                Background="{TemplateBinding Background}"
-                                                                Padding="{TemplateBinding Padding}"
-                                                                SnapsToDevicePixels="true">
-                                                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                                                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
-                                                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
-                                                        </Border>
-                                                    </ControlTemplate>
-                                                </Setter.Value>
-                                            </Setter>
-                                        </Style>
-                                    </ListBoxItem.Style>
-                                    <ListBoxItem.ContentTemplate>
-                                        <DataTemplate>
-                                            <Button Margin="0,5,0,2"
-                                            Height="20"
-                                            Width="150"
-                                            HorizontalAlignment="Center"
-                                            Style="{StaticResource MainButtonStyle}"
-                                            Content="{x:Static localization:strings.NextContent}"
-                                            Command="{Binding ElementName=Self, Path=DataContext.NextContentCommand}"/>
-                                        </DataTemplate>
-                                    </ListBoxItem.ContentTemplate>
-                                </ListBoxItem>
                             </CompositeCollection>
                         </ListBox.ItemsSource>
                     </ListBox>

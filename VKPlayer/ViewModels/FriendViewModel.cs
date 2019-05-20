@@ -1,12 +1,7 @@
-﻿using System;
-using System.IO;
-using System.Net;
-using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
+﻿using System.Windows.Media.Imaging;
 using Prism.Mvvm;
 using VkNet.Model;
 using VKPlayer.Helpers;
-using VKPlayer.Logging;
 using VKPlayer.UiHelpers;
 
 namespace VKPlayer.ViewModels

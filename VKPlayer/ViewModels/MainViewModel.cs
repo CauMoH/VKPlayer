@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,6 +24,7 @@ using VKPlayer.Configuration;
 using VKPlayer.Enums;
 using VKPlayer.EventArgs;
 using VKPlayer.Extension;
+using VKPlayer.Helpers;
 using VKPlayer.Interfaces;
 using VKPlayer.Logging;
 using VKPlayer.PlayerEngine;
@@ -42,11 +45,11 @@ namespace VKPlayer.ViewModels
 
         private readonly IPlayer _player = new PlayerVlcService();
 
-        private Audio _selectedTrack;
+        private TrackViewModel _selectedTrack;
 
         private PlayerState _playerState;
 
-        private string _query;
+        private string _query = string.Empty;
 
         private double _totalProgress = 100;
 
@@ -91,7 +94,7 @@ namespace VKPlayer.ViewModels
         /// <summary>
         /// Выбранный трек
         /// </summary>
-        public Audio SelectedTrack
+        public TrackViewModel SelectedTrack
         {
             get => _selectedTrack;
             set => SetProperty(ref _selectedTrack, value);
@@ -115,7 +118,7 @@ namespace VKPlayer.ViewModels
         /// <summary>
         /// Текущий плейлист
         /// </summary>
-        public ObservableCollection<Audio> Tracks { get; } = new ObservableCollection<Audio>();
+        public ObservableCollection<TrackViewModel> Tracks { get; } = new ObservableCollection<TrackViewModel>();
 
         /// <summary>
         /// Состояние плеера
@@ -462,7 +465,7 @@ namespace VKPlayer.ViewModels
         /// </summary>
         private void Play()
         {
-            _player.Play(SelectedTrack?.Url);
+            _player.Play(SelectedTrack?.Uri);
         }
         
         /// <summary>
@@ -479,6 +482,8 @@ namespace VKPlayer.ViewModels
         /// </summary>
         private void ClearTracks()
         {
+            TracksCleared?.Invoke(this, System.EventArgs.Empty);
+
             Tracks.Clear();
             _offset = 0;
         }
@@ -497,6 +502,56 @@ namespace VKPlayer.ViewModels
             Duration = progressString + @"\" + totalString;
         }
 
+        /// <summary>
+        /// Загружает данные
+        /// </summary>
+        private async Task<bool> Download(string cmdParams)
+        {
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    var process = new Process();
+                    var startInfo = new ProcessStartInfo
+                    {
+                        WindowStyle = ProcessWindowStyle.Hidden,
+                        FileName = "cmd.exe",
+                        Arguments = "/c " + cmdParams,
+                        RedirectStandardOutput = true,
+                        UseShellExecute = false,
+                        RedirectStandardError = true,
+                        CreateNoWindow = true
+                    };
+                    process.StartInfo = startInfo;
+                    process.OutputDataReceived += OutputHandler;
+                    process.ErrorDataReceived += OutputHandler;
+                    process.Start();
+                    process.BeginOutputReadLine();
+                    process.BeginErrorReadLine();
+                    process.WaitForExit();
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    LoggerFacade.WriteError(e);
+                    return false;
+                }
+            });
+        }
+
+        /// <summary>
+        /// Создает параметры командной строки из данных трека
+        /// </summary>
+        private bool CheckFileExistAndCreateCmdArgs(TrackViewModel track, out string args)
+        {
+            var trackFileName = (track.Title + "_" + track.Artist + ".mp3").Replace(" ", "_");
+            trackFileName = StringHelper.GetSafeFilename(trackFileName);
+            var trackPath = Path.Combine(UserSettings.DownloadFolder, trackFileName);
+            args = Environment.CurrentDirectory + "\\lib\\ffmpeg -i " + track.Uri.AbsoluteUri + " -c copy " + trackPath;
+
+            return File.Exists(trackPath);
+        }
+        
         #region Get Music
 
         /// <summary>
@@ -621,7 +676,7 @@ namespace VKPlayer.ViewModels
 
                 foreach (var audio in audios)
                 {
-                    Tracks.Add(audio);
+                    Tracks.Add(new TrackViewModel(audio));
                 }
             });
         }
@@ -790,12 +845,13 @@ namespace VKPlayer.ViewModels
         {
             ConnectionSettingsCommand = new DelegateCommand(ConnectionSettingsExecute);
             NextContentCommand = new DelegateCommand(NextContentExecute);
-            SelectedCommand = new DelegateCommand<Audio>(SelectedExecute);
+            SelectedCommand = new DelegateCommand<TrackViewModel>(SelectedExecute);
             PreviousTrackCommand = new DelegateCommand(PreviousTrackExecute);
             NextTrackCommand = new DelegateCommand(NextTrackExecute);
             PlayPauseCommand = new DelegateCommand(PlayPauseExecute);
             StopCommand = new DelegateCommand(StopExecute);
             DownloadCommand = new DelegateCommand(DownloadExecute);
+            DownloadTrackCommand = new DelegateCommand<TrackViewModel>(DownloadTrackExecute);
             SearchCommand = new DelegateCommand(SearchExecute);
             GetPopularCommand = new DelegateCommand(GetPopularExecute);
             GetMyMusicCommand = new DelegateCommand(GetMyMusicExecute);
@@ -819,6 +875,8 @@ namespace VKPlayer.ViewModels
         public ICommand NextContentCommand { get; private set; }
 
         public ICommand DownloadCommand { get; private set; }
+
+        public ICommand DownloadTrackCommand { get; private set; }
 
         public ICommand SearchCommand { get; private set; }
 
@@ -867,10 +925,13 @@ namespace VKPlayer.ViewModels
                 case PlaylistType.Search:
                     GetSearch(isNextLoad:true);
                     break;
+
+                case PlaylistType.None:
+                    break;
             }
         }
 
-        private void SelectedExecute(Audio track)
+        private void SelectedExecute(TrackViewModel track)
         {
             SelectedTrack = track;
             Play();
@@ -960,7 +1021,48 @@ namespace VKPlayer.ViewModels
 
         private async void DownloadExecute()
         {
+            if (string.IsNullOrWhiteSpace(UserSettings.DownloadFolder) ||
+                !Directory.Exists(UserSettings.DownloadFolder))
+            {
+                MessageBoxExt.Show(Localization.strings.Error, Localization.strings.DownloadPathError);
+                return;
+            }
 
+            for (var index = 0; index < Tracks.Count; index++)
+            {
+                var track = Tracks[index];
+                var isExist = CheckFileExistAndCreateCmdArgs(track, out var args);
+                if(isExist)
+                    continue;
+
+                await Download(args);
+            }
+        }
+
+        private async void DownloadTrackExecute(TrackViewModel track)
+        {
+            if (string.IsNullOrWhiteSpace(UserSettings.DownloadFolder) ||
+                !Directory.Exists(UserSettings.DownloadFolder))
+            {
+                MessageBoxExt.Show(Localization.strings.Error, Localization.strings.DownloadPathError);
+                return;
+            }
+
+            var isExist = CheckFileExistAndCreateCmdArgs(track, out var args);
+            if (isExist)
+            {
+                return;
+            }
+
+            await Download(args);
+        }
+
+        private void OutputHandler(object sender, DataReceivedEventArgs e)
+        {
+            if (!string.IsNullOrWhiteSpace(e.Data) && e.Data.Contains("video:0kB audio:"))
+            {
+                UiInvoker.Invoke(ExtensionMethods.Flash);
+            }
         }
 
         private void SearchExecute()
@@ -982,6 +1084,12 @@ namespace VKPlayer.ViewModels
         {
             GetRecommendations();
         }
+
+        #endregion
+
+        #region Events
+
+        public event EventHandler<System.EventArgs> TracksCleared;
 
         #endregion
     }

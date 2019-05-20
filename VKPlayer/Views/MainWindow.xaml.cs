@@ -1,6 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 using VKPlayer.Extension;
 using VKPlayer.Properties;
 using VKPlayer.ViewModels;
@@ -98,7 +100,14 @@ namespace VKPlayer.Views
             SizeChanged += MainWindow_OnSizeChanged;
             LocationChanged += MainWindow_OnLocationChanged;
 
+            ViewModel.TracksCleared += ViewModel_OnTracksCleared;
+
             ViewModel.AuthorizeFromAccessToken();
+        }
+
+        private void ViewModel_OnTracksCleared(object sender, System.EventArgs e)
+        {
+            (((VisualTreeHelper.GetChild(TracksListBox, 0) as Border)?.Child) as ScrollViewer)?.ScrollToVerticalOffset(0);
         }
 
         private void MainWindow_OnClosing(object sender, CancelEventArgs e)
@@ -119,6 +128,25 @@ namespace VKPlayer.Views
         {
             WindowState = ViewModel.UserSettings.MainWindowSettings.IsMaximized ? WindowState.Maximized : WindowState.Normal;
             Activate();
+        }
+
+        private void ScrollViewer_OnScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            if (e.ExtentHeight - e.ViewportHeight - e.VerticalOffset == 0)
+            {
+                ViewModel.NextContentCommand.Execute(null);
+            }
+        }
+
+        private void FrameworkElement_OnLoaded(object sender, RoutedEventArgs e)
+        {
+            var a = e;
+        }
+
+
+        private void UIElement_OnIsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            
         }
     }
 }

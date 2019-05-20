@@ -129,8 +129,8 @@
   <data name="Cancel" xml:space="preserve">
     <value>Отмена</value>
   </data>
-  <data name="DownLoad" xml:space="preserve">
-    <value>Загрузить</value>
+  <data name="DownloadPlaylist" xml:space="preserve">
+    <value>Загрузить плейлист</value>
   </data>
   <data name="EnterPassword" xml:space="preserve">
     <value>Введите пароль</value>
@@ -215,5 +215,20 @@
   </data>
   <data name="Groups" xml:space="preserve">
     <value>Группы</value>
+  </data>
+  <data name="DownloadFolder" xml:space="preserve">
+    <value>Папка загрузки</value>
+  </data>
+  <data name="DownLoadFolderSelect" xml:space="preserve">
+    <value>Выбрать</value>
+  </data>
+  <data name="DownloadTrack" xml:space="preserve">
+    <value>Загрузить</value>
+  </data>
+  <data name="DownloadPathError" xml:space="preserve">
+    <value>Не выбран каталог для загрузки (в настройках), либо каталог не существует.</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Ошибка!</value>
   </data>
 </root>

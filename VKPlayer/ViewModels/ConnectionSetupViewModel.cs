@@ -1,17 +1,20 @@
 ﻿using System.Security;
-using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Input;
 using Prism.Commands;
 using Prism.Mvvm;
 using VKPlayer.Configuration;
 using VKPlayer.Extension;
 using VKPlayer.Views;
+using Application = System.Windows.Application;
 
 namespace VKPlayer.ViewModels
 {
     public class ConnectionSetupViewModel : BindableBase
     {
         #region Members
+
+        private ConnectionSetupView _setupView;
 
         private readonly UserSettings _userSettings;
 
@@ -20,7 +23,7 @@ namespace VKPlayer.ViewModels
 
         private bool _isOpen;
 
-        private ConnectionSetupView _setupView;
+        private string _downloadFolder;
 
         #endregion
 
@@ -47,6 +50,15 @@ namespace VKPlayer.ViewModels
         {
             get => _isOpen;
             set => SetProperty(ref _isOpen, value);
+        }
+
+        /// <summary>
+        /// Папка загрузки
+        /// </summary>
+        public string DownloadFolder
+        {
+            get => _downloadFolder;
+            set => SetProperty(ref _downloadFolder, value);
         }
 
         #endregion
@@ -81,6 +93,7 @@ namespace VKPlayer.ViewModels
         {
             UserName = _userSettings.UserName;
             Password = _userSettings.Password;
+            DownloadFolder = _userSettings.DownloadFolder;
         }
 
         #region Commands
@@ -92,7 +105,11 @@ namespace VKPlayer.ViewModels
         {
             OkCommand = new DelegateCommand(OkExecute);
             CancelCommand = new DelegateCommand(CancelExecute);
+            LoginCommand = new DelegateCommand(LoginExecute);
+            DownloadFolderSelectCommand = new DelegateCommand(DownloadFolderSelectExecute);
         }
+
+        #region Command Props
 
         /// <summary>
         /// Конманда применить настройки
@@ -104,20 +121,52 @@ namespace VKPlayer.ViewModels
         /// </summary>
         public ICommand CancelCommand { get; private set; }
 
+        /// <summary>
+        /// Войти в учетную запись
+        /// </summary>
+        public ICommand LoginCommand { get; private set; }
+
+        /// <summary>
+        /// Выбрать папку загрузки
+        /// </summary>
+        public ICommand DownloadFolderSelectCommand { get; private set; }
+
+        #endregion
+
+        #region Command Executes
+
+        #endregion
+
         private void OkExecute()
         {
             IsOpen = false;
 
             _userSettings.UserName = UserName;
             _userSettings.Password = PbExt.Password;
-            _userSettings.AccessToken = string.Empty;
-
+            _userSettings.DownloadFolder = DownloadFolder;
             _userSettings.Save(isSilent: false);
         }
 
         private void CancelExecute()
         {
             IsOpen = false;
+        }
+
+        private void LoginExecute()
+        {
+            _userSettings.AccessToken = string.Empty;
+
+            OkCommand.Execute(null);
+        }
+
+        private void DownloadFolderSelectExecute()
+        {
+            var dialog = new FolderBrowserDialog();
+            var result = dialog.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                DownloadFolder = dialog.SelectedPath;
+            }
         }
 
         #endregion
