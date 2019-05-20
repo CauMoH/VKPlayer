@@ -547,9 +547,10 @@ namespace VKPlayer.ViewModels
             var trackFileName = (track.Title + "_" + track.Artist + ".mp3").Replace(" ", "_");
             trackFileName = StringHelper.GetSafeFilename(trackFileName);
             var trackPath = Path.Combine(UserSettings.DownloadFolder, trackFileName);
-            args = Environment.CurrentDirectory + "\\lib\\ffmpeg -i " + track.Uri.AbsoluteUri + " -c copy " + trackPath;
-
-            return File.Exists(trackPath);
+            
+            args = '"' + Directory.GetCurrentDirectory() + "\\lib\\ffmpeg" + '"' + " -i " + track.Uri?.AbsoluteUri + " -c copy " + trackPath;
+            
+            return track.Uri == null || File.Exists(trackPath);
         }
         
         #region Get Music
@@ -837,6 +838,18 @@ namespace VKPlayer.ViewModels
 
         #endregion
 
+        #region Downloader
+
+        private void OutputHandler(object sender, DataReceivedEventArgs e)
+        {
+            if (!string.IsNullOrWhiteSpace(e.Data) && e.Data.Contains("video:0kB audio:"))
+            {
+                UiInvoker.Invoke(ExtensionMethods.Flash);
+            }
+        }
+
+        #endregion
+
         #endregion
 
         #region Commands
@@ -1055,14 +1068,6 @@ namespace VKPlayer.ViewModels
             }
 
             await Download(args);
-        }
-
-        private void OutputHandler(object sender, DataReceivedEventArgs e)
-        {
-            if (!string.IsNullOrWhiteSpace(e.Data) && e.Data.Contains("video:0kB audio:"))
-            {
-                UiInvoker.Invoke(ExtensionMethods.Flash);
-            }
         }
 
         private void SearchExecute()
