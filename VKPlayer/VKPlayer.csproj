@@ -880,6 +880,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Setup\setup.iss" />
+    <Resource Include="Views\Images\splash.png" />
     <Resource Include="Views\Images\btn_download.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

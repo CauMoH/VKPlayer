@@ -55,8 +55,8 @@ namespace VKPlayer
 
             Logging.LoggerFacade.WriteInformation("App Startup...");
 
-            //var splashScreen = new SplashScreen("../Images/splash.png");
-            //splashScreen.Show(true);
+            var splashScreen = new SplashScreen("../Views/Images/splash.png");
+            splashScreen.Show(true);
 
             InitializeMainWindow();
         }
