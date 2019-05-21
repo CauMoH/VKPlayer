@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
-using System.Threading.Tasks;
 using VKPlayer.Enums;
 using VKPlayer.Interfaces;
 using VKPlayer.Logging;
@@ -129,7 +128,7 @@ namespace VKPlayer.PlayerEngine
         {
             try
             {
-                _vlcMediaPlayer.Stop();
+                _vlcMediaPlayer.Pause();
             }
             catch (Exception e)
             {

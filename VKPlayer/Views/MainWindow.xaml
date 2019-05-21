@@ -27,7 +27,18 @@
         Title="{x:Static localization:strings.MainWindowHeader}"
         x:Name="Self"
         Icon="pack://application:,,,/ico.ico">
-    
+
+    <Window.TaskbarItemInfo>
+        <TaskbarItemInfo>
+            <TaskbarItemInfo.ThumbButtonInfos>
+                <ThumbButtonInfo ImageSource="pack://application:,,,/Views/Images/left.png" Description="Previous" Command="{Binding PreviousTrackCommand}" />
+                <ThumbButtonInfo ImageSource="pack://application:,,,/Views/Images/play.png" Description="Play/Pause" Command="{Binding PlayPauseCommand}"/>
+                <ThumbButtonInfo ImageSource="pack://application:,,,/Views/Images/stop.png" Description="Stop" Command="{Binding StopCommand}" />
+                <ThumbButtonInfo ImageSource="pack://application:,,,/Views/Images/right.png" Description="Next" Command="{Binding NextTrackCommand}" />
+            </TaskbarItemInfo.ThumbButtonInfos>
+        </TaskbarItemInfo>
+    </Window.TaskbarItemInfo>
+
     <Window.Resources>
         <CollectionViewSource IsLiveSortingRequested="True"
                               x:Key="Tracks" 

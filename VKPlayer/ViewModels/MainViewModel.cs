@@ -48,7 +48,7 @@ namespace VKPlayer.ViewModels
 
         private TrackViewModel _selectedTrack;
 
-        private PlayerState _playerState;
+        private PlayerState _playerState = PlayerState.Stopped;
 
         private string _query = string.Empty;
 
