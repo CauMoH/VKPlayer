@@ -5,6 +5,7 @@ using System.Security;
 using VKPlayer.AppCommon;
 using VKPlayer.Common;
 using VKPlayer.Configuration.XmlCommon;
+using VKPlayer.Enums;
 using VKPlayer.EventArgs;
 
 namespace VKPlayer.Configuration
@@ -27,6 +28,9 @@ namespace VKPlayer.Configuration
         public string AccessToken { get; set; }
         public uint UserId { get; set; }
         public string DownloadFolder { get; set; }
+        public AudioGenreExt PopularAudioGenre { get; set; }
+        public bool PopularOnlyEng { get; set; }
+        public bool RecommendationsIsShuffle { get; set; }
 
         #endregion
 
@@ -42,6 +46,9 @@ namespace VKPlayer.Configuration
                 .Block("General", bi => bi
                 .Setting(nameof(AccessToken), () => AccessToken)
                 .Setting(nameof(UserId), () => UserId)
+                .Setting(nameof(AudioGenreExt), () => PopularAudioGenre)
+                .Setting(nameof(PopularOnlyEng), () => PopularOnlyEng)
+                .Setting(nameof(RecommendationsIsShuffle), () => RecommendationsIsShuffle)
                 .Setting(nameof(DownloadFolder), () => DownloadFolder))
                 .Block("VKPlayer_MainWindow", bi => bi
                     .Setting(nameof(MainWindowSettings.Top), () => MainWindowSettings.Top)
@@ -107,6 +114,9 @@ namespace VKPlayer.Configuration
             _password.Reset();
             AccessToken = string.Empty;
             UserId = 0;
+            PopularAudioGenre = AudioGenreExt.All;
+            PopularOnlyEng = false;
+            RecommendationsIsShuffle = false;
             DownloadFolder = string.Empty;
 
             MainWindowSettings = new WindowDimensions();

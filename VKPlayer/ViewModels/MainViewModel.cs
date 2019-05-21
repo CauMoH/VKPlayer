@@ -14,6 +14,7 @@ using Prism.Commands;
 using Prism.Mvvm;
 using VkNet;
 using VkNet.AudioBypassService.Extensions;
+using VkNet.Enums;
 using VkNet.Enums.Filters;
 using VkNet.Enums.SafetyEnums;
 using VkNet.Exception;
@@ -340,10 +341,6 @@ namespace VKPlayer.ViewModels
                 LoggerFacade.WriteError(Localization.strings.AuthorizeError, e, isShow: true);
                 ConnectionSettingsCommand.Execute(null);
             }
-            var fr = _api.Friends.Get(new FriendsGetParams()
-            {
-                Fields = ProfileFields.Photo50
-            });
           
             RaisePropertyChanged(nameof(AuthorizationStatus));
 
@@ -390,7 +387,7 @@ namespace VKPlayer.ViewModels
                         if (_api.IsAuthorized)
                         {
                             UserSettings.AccessToken = _api.Token;
-                            if (_api.UserId != null) UserSettings.UserId = (uint) _api.UserId;
+                            if (_api.UserId != null) UserSettings.UserId = (uint)_api.UserId;
                             UserSettings.Save();
                         }
                     }
@@ -407,7 +404,7 @@ namespace VKPlayer.ViewModels
 
                         UiInvoker.Invoke(() =>
                         {
-                            
+
                             ConnectionSettingsCommand.Execute(null);
                         });
                     }
@@ -617,7 +614,14 @@ namespace VKPlayer.ViewModels
 
             Task.Run(() =>
             {
-                var audios = _api.Audio.GetPopular(false, null, Settings.Default.Count, _offset);
+                AudioGenre? audioGenre = null;
+
+                if (UserSettings.PopularAudioGenre != AudioGenreExt.All)
+                {
+                    audioGenre = (AudioGenre?) UserSettings.PopularAudioGenre;
+                }
+
+                var audios = _api.Audio.GetPopular(UserSettings.PopularOnlyEng, audioGenre, Settings.Default.Count, _offset);
 
                 LoadTracks(audios, isNextLoad);
             });
@@ -635,7 +639,7 @@ namespace VKPlayer.ViewModels
 
             Task.Run(() =>
             {
-                var audios = _api.Audio.GetRecommendations(null, _userId, Settings.Default.Count, _offset);
+                var audios = _api.Audio.GetRecommendations(null, _userId, Settings.Default.Count, _offset, UserSettings.RecommendationsIsShuffle);
 
                 LoadTracks(audios, isNextLoad);
             });

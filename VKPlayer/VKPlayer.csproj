@@ -144,6 +144,8 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\Genre.cs" />
+    <Compile Include="Enums\AudioGenreExt.cs" />
     <Compile Include="Enums\PlaylistType.cs" />
     <Compile Include="EventArgs\CaptchaEnteredEventArgs.cs" />
     <Compile Include="Extension\ExtensionMethods.cs" />
@@ -151,6 +153,11 @@
     <Compile Include="Helpers\ImageHelper.cs" />
     <Compile Include="Helpers\StringHelper.cs" />
     <Compile Include="Interfaces\IPlayer.cs" />
+    <Compile Include="Localization\genre.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>genre.resx</DependentUpon>
+    </Compile>
     <Compile Include="PlayerEngine\PlayerVLCService.cs" />
     <Compile Include="ViewModels\CaptchaViewModel.cs" />
     <Compile Include="ViewModels\ConnectionSetupViewModel.cs" />
@@ -275,6 +282,10 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <EmbeddedResource Include="Localization\genre.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>genre.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="Localization\strings.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>strings.Designer.cs</LastGenOutput>

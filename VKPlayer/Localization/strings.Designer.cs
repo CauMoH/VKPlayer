@@ -331,6 +331,33 @@ namespace VKPlayer.Localization {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Жанр популярной музыки.
+        /// </summary>
+        public static string PopularGenre {
+            get {
+                return ResourceManager.GetString("PopularGenre", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Популярная музыка - только зарубежные.
+        /// </summary>
+        public static string PopularOnlyEng {
+            get {
+                return ResourceManager.GetString("PopularOnlyEng", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Случайный порядок в рекомендованной музыке.
+        /// </summary>
+        public static string RecommendationsIsShuffle {
+            get {
+                return ResourceManager.GetString("RecommendationsIsShuffle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Поиск.
         /// </summary>
         public static string Search {

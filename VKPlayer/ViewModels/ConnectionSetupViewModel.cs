@@ -1,9 +1,13 @@
-﻿using System.Security;
+﻿using System.Collections.ObjectModel;
+using System.Linq;
+using System.Security;
 using System.Windows.Forms;
 using System.Windows.Input;
 using Prism.Commands;
 using Prism.Mvvm;
 using VKPlayer.Configuration;
+using VKPlayer.Data;
+using VKPlayer.Enums;
 using VKPlayer.Extension;
 using VKPlayer.Views;
 using Application = System.Windows.Application;
@@ -15,15 +19,14 @@ namespace VKPlayer.ViewModels
         #region Members
 
         private ConnectionSetupView _setupView;
-
         private readonly UserSettings _userSettings;
-
         private string _username;
         private SecureString _password;
-
         private bool _isOpen;
-
         private string _downloadFolder;
+        private Genre _selectedAudioGenre;
+        private bool _popularOnlyEng;
+        private bool _recommendationsIsShuffle;
 
         #endregion
 
@@ -61,6 +64,50 @@ namespace VKPlayer.ViewModels
             set => SetProperty(ref _downloadFolder, value);
         }
 
+        public Genre SelectedAudioGenre
+        {
+            get => _selectedAudioGenre;
+            set => SetProperty(ref _selectedAudioGenre, value);
+        }
+
+        public bool PopularOnlyEng
+        {
+            get => _popularOnlyEng;
+            set => SetProperty(ref _popularOnlyEng, value);
+        }
+
+        public bool RecommendationsIsShuffle
+        {
+            get => _recommendationsIsShuffle;
+            set => SetProperty(ref _recommendationsIsShuffle, value);
+        }
+
+        public ObservableCollection<Genre> Genres { get; } = new ObservableCollection<Genre>
+        {
+            new Genre(AudioGenreExt.All, Localization.genre.All),
+            new Genre(AudioGenreExt.Rock, Localization.genre.Rock),
+            new Genre(AudioGenreExt.Pop, Localization.genre.Pop),
+            new Genre(AudioGenreExt.RapAndHipHop, Localization.genre.RapAndHipHop),
+            new Genre(AudioGenreExt.EasyListening, Localization.genre.EasyListening),
+            new Genre(AudioGenreExt.DanceAndHouse, Localization.genre.DanceAndHouse),
+            new Genre(AudioGenreExt.Instrumental, Localization.genre.Instrumental),
+            new Genre(AudioGenreExt.Metal, Localization.genre.Metal),
+            new Genre(AudioGenreExt.Dubstep, Localization.genre.Dubstep),
+            new Genre(AudioGenreExt.DrumAndBass, Localization.genre.DrumAndBass),
+            new Genre(AudioGenreExt.Trance, Localization.genre.Trance),
+            new Genre(AudioGenreExt.Chanson, Localization.genre.Chanson),
+            new Genre(AudioGenreExt.Ethnic, Localization.genre.Ethnic),
+            new Genre(AudioGenreExt.AcousticAndVocal, Localization.genre.AcousticAndVocal),
+            new Genre(AudioGenreExt.Reggae, Localization.genre.Reggae),
+            new Genre(AudioGenreExt.Classical, Localization.genre.Classical),
+            new Genre(AudioGenreExt.IndiePop, Localization.genre.IndiePop),
+            new Genre(AudioGenreExt.Other, Localization.genre.Other),
+            new Genre(AudioGenreExt.Speech, Localization.genre.Speech),
+            new Genre(AudioGenreExt.Alternative, Localization.genre.Alternative),
+            new Genre(AudioGenreExt.ElectropopAndDisco, Localization.genre.ElectropopAndDisco),
+            new Genre(AudioGenreExt.JazzAndBlues, Localization.genre.JazzAndBlues)
+        };
+
         #endregion
 
         public ConnectionSetupViewModel(UserSettings userSettings)
@@ -94,6 +141,9 @@ namespace VKPlayer.ViewModels
             UserName = _userSettings.UserName;
             Password = _userSettings.Password;
             DownloadFolder = _userSettings.DownloadFolder;
+            SelectedAudioGenre = Genres.FirstOrDefault(genre => genre.AudioGenreExt == _userSettings.PopularAudioGenre);
+            PopularOnlyEng = _userSettings.PopularOnlyEng;
+            RecommendationsIsShuffle = _userSettings.RecommendationsIsShuffle;
         }
 
         #region Commands
@@ -144,6 +194,9 @@ namespace VKPlayer.ViewModels
             _userSettings.UserName = UserName;
             _userSettings.Password = PbExt.Password;
             _userSettings.DownloadFolder = DownloadFolder;
+            _userSettings.PopularAudioGenre = SelectedAudioGenre.AudioGenreExt;
+            _userSettings.PopularOnlyEng = PopularOnlyEng;
+            _userSettings.RecommendationsIsShuffle = RecommendationsIsShuffle;
             _userSettings.Save(isSilent: false);
         }
 

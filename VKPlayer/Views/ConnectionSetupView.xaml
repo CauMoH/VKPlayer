@@ -15,13 +15,17 @@
         ResizeMode="NoResize"
         WindowStyle="None"
         Width="500"
-        Height="290"
+        Height="410"
         AllowsTransparency="True"
         UseLayoutRounding="True"
         SnapsToDevicePixels="True"
         Title="{x:Static localization:strings.Settings}"
         x:Name="Self"
         Icon="pack://application:,,,/ico.ico">
+
+    <Window.Resources>
+        <ResourceDictionary Source="pack://application:,,,/Views/Dictionary/Dictionary.xaml"/>
+    </Window.Resources>
 
     <Border BorderBrush="{StaticResource WindowBorderColor}"
             BorderThickness="1"
@@ -146,13 +150,22 @@
                             VerticalAlignment="Stretch">
 
                         <Grid Margin="16,0,14,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
 
-                            <TextBlock Grid.Column="0"
+                            <Grid Grid.Row="0">
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Column="0"
                                        Foreground="{StaticResource MainBlackColor}"
                                        FontWeight="Regular"
                                        VerticalAlignment="Center"
@@ -161,12 +174,12 @@
                                        FontSize="15px"
                                        Text="{x:Static localization:strings.DownloadFolder}"/>
 
-                            <Border Grid.Column="1"
+                                <Border Grid.Column="1"
                                     BorderThickness="1"
                                     BorderBrush="{StaticResource MainGrayColor}"
                                     CornerRadius="2"
                                     Margin="5,0,5,0">
-                            <TextBlock Margin="2,0,2,0"
+                                    <TextBlock Margin="2,0,2,0"
                                        TextTrimming="CharacterEllipsis"
                                        ToolTip="{Binding DownloadFolder}"
                                        Foreground="{StaticResource MainBlackColor}"
@@ -175,9 +188,9 @@
                                        FontSize="13px"
                                        Text="{Binding DownloadFolder}"
                                        Opacity="0.7"/>
-                            </Border>
+                                </Border>
 
-                            <Button Grid.Column="2"
+                                <Button Grid.Column="2"
                                     Content="{x:Static localization:strings.DownLoadFolderSelect}"
                                     HorizontalAlignment="Left"
                                     Command="{Binding DownloadFolderSelectCommand}" 
@@ -185,7 +198,48 @@
                                     Height="35"
                                     Padding="20,0,20,0"/>
 
+                            </Grid>
+                            
+                            <StackPanel Grid.Row="1" Orientation="Horizontal"
+                                        Margin="0,10,0,10">
+                                <TextBlock  Foreground="{StaticResource MainBlackColor}"
+                                            FontWeight="Regular"
+                                            VerticalAlignment="Center"
+                                            HorizontalAlignment="Left"
+                                            Margin="0,0,5,0"
+                                            FontSize="15px"
+                                            Text="{x:Static localization:strings.PopularGenre}"/>
+                                <ComboBox FocusVisualStyle="{x:Null}"
+                                          Height="35"
+                                          Width="262"
+                                          ItemsSource="{Binding Genres}"
+                                          SelectedValue="{Binding SelectedAudioGenre}"
+                                          DisplayMemberPath="Description"
+                                          Style="{StaticResource ComboMoxStyle}">
+                                <ComboBox.Resources>
+                                    <Style TargetType="ScrollBar">
+                                        <Setter Property="Template" Value="{StaticResource VerticalScrollBar}"/>
+                                    </Style>
+                                </ComboBox.Resources>    
+                                </ComboBox>
+                            </StackPanel>
+
+                            <CheckBox Grid.Row="2" 
+                                      Margin="0,0,0,10"
+                                      HorizontalAlignment="Left"
+                                      Style="{StaticResource CheckBoxStyle}"
+                                      IsChecked="{Binding PopularOnlyEng}"
+                                      Content="{x:Static localization:strings.PopularOnlyEng}"/>
+
+                            <CheckBox Grid.Row="3" 
+                                      Margin="0,0,0,10"
+                                      HorizontalAlignment="Left"
+                                      Style="{StaticResource CheckBoxStyle}"
+                                      IsChecked="{Binding RecommendationsIsShuffle}"
+                                      Content="{x:Static localization:strings.RecommendationsIsShuffle}"/>
+
                         </Grid>
+
                     </Border>
                 </Grid>
 

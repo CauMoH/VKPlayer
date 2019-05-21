@@ -117,127 +117,70 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AuthError" xml:space="preserve">
-    <value>ОШИБКА</value>
+  <data name="AcousticAndVocal" xml:space="preserve">
+    <value>Акустическая музыка и вокал</value>
   </data>
-  <data name="Authorization" xml:space="preserve">
-    <value>АВТОРИЗАЦИЯ</value>
+  <data name="All" xml:space="preserve">
+    <value>Любой жанр</value>
   </data>
-  <data name="AuthStatus" xml:space="preserve">
-    <value>СТАТУС АВТОРИЗАЦИИ</value>
+  <data name="Alternative" xml:space="preserve">
+    <value>Альтернативная музыка</value>
   </data>
-  <data name="Cancel" xml:space="preserve">
-    <value>Отмена</value>
+  <data name="Chanson" xml:space="preserve">
+    <value>Шансон</value>
   </data>
-  <data name="DownloadPlaylist" xml:space="preserve">
-    <value>Загрузить плейлист</value>
+  <data name="Classical" xml:space="preserve">
+    <value>Классическая музыка</value>
   </data>
-  <data name="EnterPassword" xml:space="preserve">
-    <value>Введите пароль</value>
+  <data name="DanceAndHouse" xml:space="preserve">
+    <value>Танцевальная и хаус музыка</value>
   </data>
-  <data name="EnterUserName" xml:space="preserve">
-    <value>Введите пользователя</value>
+  <data name="DrumAndBass" xml:space="preserve">
+    <value>Драм-н-бэйс</value>
   </data>
-  <data name="General" xml:space="preserve">
-    <value>ОБЩИЕ</value>
+  <data name="Dubstep" xml:space="preserve">
+    <value>Дабстеп</value>
   </data>
-  <data name="MainWindowHeader" xml:space="preserve">
-    <value>VKPlayer</value>
+  <data name="EasyListening" xml:space="preserve">
+    <value>Легкая музыка</value>
   </data>
-  <data name="MessageBoxError" xml:space="preserve">
-    <value>Ошибка!</value>
+  <data name="ElectropopAndDisco" xml:space="preserve">
+    <value>Электро-поп и диско</value>
   </data>
-  <data name="No" xml:space="preserve">
-    <value>Нет</value>
+  <data name="Ethnic" xml:space="preserve">
+    <value>Этническая музыка</value>
   </data>
-  <data name="Ok" xml:space="preserve">
-    <value>ОК</value>
+  <data name="IndiePop" xml:space="preserve">
+    <value>Инди-поп</value>
   </data>
-  <data name="Password" xml:space="preserve">
-    <value>Пароль</value>
+  <data name="Instrumental" xml:space="preserve">
+    <value>Инструментальная музыка</value>
   </data>
-  <data name="Search" xml:space="preserve">
-    <value>Поиск</value>
+  <data name="JazzAndBlues" xml:space="preserve">
+    <value>Джаз и блюз</value>
   </data>
-  <data name="Settings" xml:space="preserve">
-    <value>Настройки</value>
+  <data name="Metal" xml:space="preserve">
+    <value>Метал</value>
   </data>
-  <data name="UserName" xml:space="preserve">
-    <value>Пользователь</value>
+  <data name="Other" xml:space="preserve">
+    <value>Другая музыка</value>
   </data>
-  <data name="Yes" xml:space="preserve">
-    <value>Да</value>
+  <data name="Pop" xml:space="preserve">
+    <value>Популярная музыка</value>
   </data>
-  <data name="AuthSuccess" xml:space="preserve">
-    <value>ОК</value>
+  <data name="RapAndHipHop" xml:space="preserve">
+    <value>Реп и хип-хоп</value>
   </data>
-  <data name="GetPopular" xml:space="preserve">
-    <value>Популярное</value>
+  <data name="Reggae" xml:space="preserve">
+    <value>Регги</value>
   </data>
-  <data name="PlayerNotLoaded" xml:space="preserve">
-    <value>Ошибка при загрузке player engine!</value>
+  <data name="Rock" xml:space="preserve">
+    <value>Рок музыка</value>
   </data>
-  <data name="PlayerEngineNotFound" xml:space="preserve">
-    <value>Не найден player engine</value>
+  <data name="Speech" xml:space="preserve">
+    <value>Спич</value>
   </data>
-  <data name="TwoFactorAuthorizationViewHeader" xml:space="preserve">
-    <value>Ввод кода двухфакторной авторизации</value>
-  </data>
-  <data name="TwoFactCode" xml:space="preserve">
-    <value>Код</value>
-  </data>
-  <data name="TwoFactEnterCode" xml:space="preserve">
-    <value>Введите код</value>
-  </data>
-  <data name="TwoFactHelp" xml:space="preserve">
-    <value>Если у вас включена двухфакторная авторизация, введите код и нажмите "ОК", если нет, проигнорируйте это окно.</value>
-  </data>
-  <data name="Enter" xml:space="preserve">
-    <value>Войти</value>
-  </data>
-  <data name="AuthorizeError" xml:space="preserve">
-    <value>Ошибка авторизации</value>
-  </data>
-  <data name="CaptchaHeader" xml:space="preserve">
-    <value>Ввод Captcha</value>
-  </data>
-  <data name="GetMyMusic" xml:space="preserve">
-    <value>Мои</value>
-  </data>
-  <data name="NextContent" xml:space="preserve">
-    <value>Следующие</value>
-  </data>
-  <data name="GetRecommendations" xml:space="preserve">
-    <value>Рекомендации</value>
-  </data>
-  <data name="Friends" xml:space="preserve">
-    <value>Друзья</value>
-  </data>
-  <data name="Groups" xml:space="preserve">
-    <value>Группы</value>
-  </data>
-  <data name="DownloadFolder" xml:space="preserve">
-    <value>Папка загрузки</value>
-  </data>
-  <data name="DownLoadFolderSelect" xml:space="preserve">
-    <value>Выбрать</value>
-  </data>
-  <data name="DownloadTrack" xml:space="preserve">
-    <value>Загрузить</value>
-  </data>
-  <data name="DownloadPathError" xml:space="preserve">
-    <value>Не выбран каталог для загрузки (в настройках), либо каталог не существует.</value>
-  </data>
-  <data name="Error" xml:space="preserve">
-    <value>Ошибка!</value>
-  </data>
-  <data name="PopularGenre" xml:space="preserve">
-    <value>Жанр популярной музыки</value>
-  </data>
-  <data name="PopularOnlyEng" xml:space="preserve">
-    <value>Популярная музыка - только зарубежные</value>
-  </data>
-  <data name="RecommendationsIsShuffle" xml:space="preserve">
-    <value>Случайный порядок в рекомендованной музыке</value>
+  <data name="Trance" xml:space="preserve">
+    <value>Транс</value>
   </data>
 </root>

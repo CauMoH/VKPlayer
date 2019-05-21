@@ -434,6 +434,66 @@
         <Setter Property="Foreground" Value="Transparent" />
     </Style>
 
+    <Style x:Key="ScrollBarPageButtonStyle" TargetType="{x:Type RepeatButton}">
+        <Setter Property="IsTabStop" Value="False"/>
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type RepeatButton}">
+                    <Border BorderBrush="Transparent"></Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="ScrollBarThumbStyle" TargetType="{x:Type Thumb}">
+        <Setter Property="IsTabStop" Value="False"/>
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="Margin" Value="0,0,0,0" />
+        <Setter Property="Width" Value="7"/>
+        <Setter Property="BorderThickness" Value="0,0,0,0"/>
+        <Setter Property="BorderBrush" Value="{StaticResource BlueBrush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Thumb}">
+                    <Rectangle Fill="#ababab" Margin="0" RadiusX="2" RadiusY="2"></Rectangle>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Width" Value="10"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <ControlTemplate x:Key="VerticalScrollBar" TargetType="{x:Type ScrollBar}">
+        <Grid Background="Transparent">
+            <Grid.RowDefinitions>
+                <RowDefinition MaxHeight="15"/>
+                <RowDefinition Height="*" />
+                <RowDefinition MaxHeight="15"/>
+            </Grid.RowDefinitions>
+
+            <Track Name="PART_Track" Grid.Row="1"
+                   IsDirectionReversed="True">
+                <Track.DecreaseRepeatButton>
+                    <RepeatButton Command="ScrollBar.PageUpCommand" Style="{StaticResource ScrollBarPageButtonStyle}">
+                    </RepeatButton>
+                </Track.DecreaseRepeatButton>
+                <Track.Thumb>
+                    <Thumb Style="{StaticResource ScrollBarThumbStyle}">
+                    </Thumb>
+                </Track.Thumb>
+                <Track.IncreaseRepeatButton>
+                    <RepeatButton Command="ScrollBar.PageDownCommand" Style="{StaticResource ScrollBarPageButtonStyle}">
+                    </RepeatButton>
+                </Track.IncreaseRepeatButton>
+            </Track>
+        </Grid>
+    </ControlTemplate>
+
+
     <ControlTemplate x:Key="ComboBoxToggleButton" TargetType="{x:Type ToggleButton}">
         <Border CornerRadius="2"
                 BorderBrush="{StaticResource MainGrayColor}"
@@ -714,65 +774,5 @@
             </Border>
         </Button>
     </DataTemplate>
-
-    <Style x:Key="ScrollBarPageButtonStyle" TargetType="{x:Type RepeatButton}">
-        <Setter Property="IsTabStop" Value="False"/>
-        <Setter Property="Focusable" Value="False"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type RepeatButton}">
-                    <Border BorderBrush="Transparent"></Border>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
-    <Style x:Key="ScrollBarThumbStyle" TargetType="{x:Type Thumb}">
-        <Setter Property="IsTabStop" Value="False"/>
-        <Setter Property="Focusable" Value="False"/>
-        <Setter Property="Margin" Value="0,0,0,0" />
-        <Setter Property="Width" Value="7"/>
-        <Setter Property="BorderThickness" Value="0,0,0,0"/>
-        <Setter Property="BorderBrush" Value="{StaticResource BlueBrush}"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type Thumb}">
-                    <Rectangle Fill="#ababab" Margin="0" RadiusX="2" RadiusY="2"></Rectangle>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-        <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Width" Value="10"/>
-            </Trigger>
-        </Style.Triggers>
-    </Style>
-
-    <ControlTemplate x:Key="VerticalScrollBar" TargetType="{x:Type ScrollBar}">
-        <Grid Background="Transparent">
-            <Grid.RowDefinitions>
-                <RowDefinition MaxHeight="15"/>
-                <RowDefinition Height="*" />
-                <RowDefinition MaxHeight="15"/>
-            </Grid.RowDefinitions>
-
-            <Track Name="PART_Track" Grid.Row="1"
-                   IsDirectionReversed="True">
-                <Track.DecreaseRepeatButton>
-                    <RepeatButton Command="ScrollBar.PageUpCommand" Style="{StaticResource ScrollBarPageButtonStyle}">
-                    </RepeatButton>
-                </Track.DecreaseRepeatButton>
-                <Track.Thumb>
-                    <Thumb Style="{StaticResource ScrollBarThumbStyle}">
-                    </Thumb>
-                </Track.Thumb>
-                <Track.IncreaseRepeatButton>
-                    <RepeatButton Command="ScrollBar.PageDownCommand" Style="{StaticResource ScrollBarPageButtonStyle}">
-                    </RepeatButton>
-                </Track.IncreaseRepeatButton>
-            </Track>
-        </Grid>
-    </ControlTemplate>
-
 
 </ResourceDictionary>
